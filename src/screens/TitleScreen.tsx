@@ -13,6 +13,7 @@ export default function TitleScreen({ level, highScore, onStart, onResetLevel }:
       <h1 className="text-5xl tracking-[0.1em]">NUMBLADE</h1>
       <p>数字を解け。敵を斬れ。</p>
       {highScore > 0 && <p>ハイスコア: {highScore}</p>}
+      <p>現在のレベル: {level}</p>
       <button
         type="button"
         className="min-h-16 min-w-[200px] rounded-xl border-none bg-[#3a86ff] text-2xl text-white cursor-pointer"

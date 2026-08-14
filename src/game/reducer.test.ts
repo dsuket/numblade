@@ -187,6 +187,22 @@ describe('gameReducer', () => {
     expect(state.maxCombo).toBe(totalQuestions)
   })
 
+  it('scores an answer using the level factor when starting above level 1', () => {
+    saveProgress({ level: 3, highScore: 0 })
+    let state = gameReducer(initGameState(), { type: 'START' })
+    state = playCorrectAnswer(state)
+    expect(state.score).toBe(180) // 100 * 1.8 (level 3's levelFactor)
+  })
+
+  it('scores an answer at the level in effect when it was asked, not the post-answer level', () => {
+    let state = gameReducer(initGameState(), { type: 'START' })
+    state = playCorrectAnswerAdvancing(state) // combo 1 at level 1 -> 100
+    state = playCorrectAnswerAdvancing(state) // combo 2 at level 1 -> 100
+    state = playCorrectAnswerAdvancing(state) // combo 3 at level 1 -> 150, then level becomes 2
+    expect(state.level).toBe(2)
+    expect(state.score).toBe(350) // 100 + 100 + 150, not 100 + 100 + (150 * 1.4)
+  })
+
   it('raises the level once per 3-correct streak, not on every subsequent answer', () => {
     let state = gameReducer(initGameState(), { type: 'START' })
     expect(state.level).toBe(1)

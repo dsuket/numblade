@@ -9,6 +9,11 @@ describe('TitleScreen', () => {
     expect(screen.getByRole('button', { name: 'スタート' })).toBeInTheDocument()
   })
 
+  it('shows the current level', () => {
+    render(<TitleScreen level={3} highScore={0} onStart={() => {}} onResetLevel={() => {}} />)
+    expect(screen.getByText('現在のレベル: 3')).toBeInTheDocument()
+  })
+
   it('calls onStart when the start button is clicked', () => {
     const onStart = vi.fn()
     render(<TitleScreen level={1} highScore={0} onStart={onStart} onResetLevel={() => {}} />)
