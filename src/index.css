@@ -51,6 +51,25 @@
   }
 }
 
+@keyframes slash-line {
+  0% {
+    transform: rotate(-45deg) scaleX(0);
+    opacity: 0;
+  }
+  25% {
+    transform: rotate(-45deg) scaleX(1);
+    opacity: 1;
+  }
+  60% {
+    transform: rotate(-45deg) scaleX(1);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(-45deg) scaleX(1);
+    opacity: 0;
+  }
+}
+
 @keyframes shake {
   0%,
   100% {

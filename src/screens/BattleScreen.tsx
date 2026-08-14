@@ -62,6 +62,15 @@ export default function BattleScreen({
             🗡️
           </span>
         )}
+        {lastAnswerCorrect === true && (
+          <span
+            data-testid="slash-line-effect"
+            aria-hidden="true"
+            className="absolute inset-0 flex items-center justify-center overflow-hidden"
+          >
+            <span className="w-[160%] h-[3px] bg-gradient-to-r from-transparent via-white to-transparent animate-[slash-line_0.35s_ease-out_forwards]" />
+          </span>
+        )}
       </div>
       <HpBar hp={enemy.hp} maxHp={enemy.maxHp} />
       <div className="flex justify-between w-full text-[#e6f1ff]">
