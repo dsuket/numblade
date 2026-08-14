@@ -1,7 +1,8 @@
-import { act, fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 import { ENEMY_SEQUENCE } from '../game/battle'
+import { PLAYER_MAX_HP } from '../game/player'
 
 // Reads the currently displayed question ("6 x 7 = ?" / "42 ÷ 6 = ?"),
 // computes the correct answer, and clicks the matching choice button.
@@ -82,12 +83,22 @@ describe('App', () => {
 
     // Answer everything except the last question correctly — the slash
     // effect element exists from the previous correct answer, and must NOT
-    // be the same DOM node once the killing blow lands.
+    // be the same DOM node once the killing blow lands. Answer slowly
+    // (>10s per question) so every answer gets a 1x speed-bonus multiplier;
+    // otherwise the fake clock stays frozen at 0ms elapsed, every answer
+    // would score a "critical" 1.5x damage bonus, and the enemy would die
+    // one hit earlier than this test's questionCount-based math expects.
     for (let i = 0; i < ENEMY_SEQUENCE[0].questionCount - 1; i++) {
+      act(() => {
+        vi.advanceTimersByTime(11000)
+      })
       answerCorrectly()
     }
     const slashBeforeKill = screen.getByTestId('slash-effect')
 
+    act(() => {
+      vi.advanceTimersByTime(11000)
+    })
     answerCorrectly()
 
     const slashAfterKill = screen.getByTestId('slash-effect')
@@ -106,6 +117,85 @@ describe('App', () => {
     for (const button of screen.getAllByRole('button')) {
       expect(button).toBeDisabled()
     }
+  })
+
+  it('counts up the turn timer while waiting for an answer', () => {
+    vi.useFakeTimers()
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'スタート' }))
+
+    expect(screen.getByTestId('turn-timer')).toHaveTextContent('0')
+
+    act(() => {
+      vi.advanceTimersByTime(3000)
+    })
+
+    expect(screen.getByTestId('turn-timer')).toHaveTextContent('3')
+  })
+
+  it('resets the turn timer when a new question appears', () => {
+    vi.useFakeTimers()
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'スタート' }))
+
+    act(() => {
+      vi.advanceTimersByTime(3000)
+    })
+    expect(screen.getByTestId('turn-timer')).toHaveTextContent('3')
+
+    answerCorrectly()
+
+    expect(screen.getByTestId('turn-timer')).toHaveTextContent('0')
+  })
+
+  it('automatically misses and damages the player after 20 seconds with no answer', () => {
+    vi.useFakeTimers()
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'スタート' }))
+
+    act(() => {
+      vi.advanceTimersByTime(20000)
+    })
+
+    expect(
+      within(screen.getByTestId('player-hp-bar')).getByText(`${PLAYER_MAX_HP - 1} / ${PLAYER_MAX_HP}`),
+    ).toBeInTheDocument()
+  })
+
+  it('shows a Critical! bonus effect when answered within 5 seconds', () => {
+    vi.useFakeTimers()
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'スタート' }))
+
+    answerCorrectly()
+
+    expect(screen.getByTestId('bonus-effect')).toHaveTextContent('Critical!')
+  })
+
+  it('shows a Nice! bonus effect when answered between 5 and 10 seconds', () => {
+    vi.useFakeTimers()
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'スタート' }))
+
+    act(() => {
+      vi.advanceTimersByTime(7000)
+    })
+    answerCorrectly()
+
+    expect(screen.getByTestId('bonus-effect')).toHaveTextContent('Nice!')
+  })
+
+  it('shows no bonus effect when answered after 10 seconds', () => {
+    vi.useFakeTimers()
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'スタート' }))
+
+    act(() => {
+      vi.advanceTimersByTime(12000)
+    })
+    answerCorrectly()
+
+    expect(screen.queryByTestId('bonus-effect')).not.toBeInTheDocument()
   })
 
   it('shows the game-over screen after enough wrong answers to run out of hp', () => {

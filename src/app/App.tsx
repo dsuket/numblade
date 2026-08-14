@@ -16,12 +16,43 @@ const APP_CLASS =
 // advances to the Defeated/Result screen.
 const KILLING_BLOW_LINGER_MS = 500
 
+// How often the turn-timer display updates, and how long a player has to
+// answer before an automatic miss (TIMEOUT) is dispatched.
+const TIMER_DISPLAY_INTERVAL_MS = 1000
+const TURN_TIMEOUT_MS = 20000
+
 export default function App() {
   const [state, dispatch] = useReducer(gameReducer, undefined, initGameState)
 
   const lastQuestionRef = useRef<Question | null>(state.question)
   const prevScreenRef = useRef(state.screen)
   const [lingerActive, setLingerActive] = useState(false)
+
+  const questionStartedAtRef = useRef(Date.now())
+  const [elapsedSeconds, setElapsedSeconds] = useState(0)
+
+  useEffect(() => {
+    if (state.screen !== 'battle') return
+
+    questionStartedAtRef.current = Date.now()
+    setElapsedSeconds(0)
+
+    const interval = setInterval(() => {
+      setElapsedSeconds(Math.floor((Date.now() - questionStartedAtRef.current) / 1000))
+    }, TIMER_DISPLAY_INTERVAL_MS)
+
+    const timeout = setTimeout(() => {
+      dispatch({ type: 'TIMEOUT' })
+    }, TURN_TIMEOUT_MS)
+
+    return () => {
+      clearInterval(interval)
+      clearTimeout(timeout)
+    }
+    // Re-runs on every new question (questionsAnswered) and on every
+    // screen change (e.g. CONTINUE returning to 'battle' for the next
+    // enemy), so the timer always starts fresh for the current turn.
+  }, [state.questionsAnswered, state.screen])
 
   if (state.question) {
     lastQuestionRef.current = state.question
@@ -79,8 +110,10 @@ export default function App() {
           playerMaxHp={PLAYER_MAX_HP}
           lastAnswerCorrect={state.lastAnswerCorrect}
           battleMessage={state.battleMessage}
-          onAnswer={(value) => dispatch({ type: 'ANSWER', value })}
+          onAnswer={(value) => dispatch({ type: 'ANSWER', value, elapsedMs: Date.now() - questionStartedAtRef.current })}
           disabled={state.screen !== 'battle'}
+          elapsedSeconds={elapsedSeconds}
+          bonusTier={state.bonusTier}
         />
       </div>
     )
