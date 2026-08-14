@@ -59,6 +59,25 @@ describe('App', () => {
     expect(screen.queryByTestId('slash-effect')).not.toBeInTheDocument()
   })
 
+  it('remounts the slash effect on the killing blow so its animation replays even though the previous answer was also correct', () => {
+    vi.useFakeTimers()
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'スタート' }))
+
+    // Answer everything except the last question correctly — the slash
+    // effect element exists from the previous correct answer, and must NOT
+    // be the same DOM node once the killing blow lands.
+    for (let i = 0; i < ENEMY_SEQUENCE[0].questionCount - 1; i++) {
+      answerCorrectly()
+    }
+    const slashBeforeKill = screen.getByTestId('slash-effect')
+
+    answerCorrectly()
+
+    const slashAfterKill = screen.getByTestId('slash-effect')
+    expect(slashAfterKill).not.toBe(slashBeforeKill)
+  })
+
   it('disables the choice buttons while the killing-blow slash effect is lingering', () => {
     vi.useFakeTimers()
     render(<App />)

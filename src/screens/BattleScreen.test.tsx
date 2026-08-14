@@ -12,6 +12,7 @@ describe('BattleScreen', () => {
       <BattleScreen
         enemy={enemy}
         question={question}
+        answerSeq={1}
         level={3}
         combo={0}
         score={0}
@@ -29,6 +30,7 @@ describe('BattleScreen', () => {
       <BattleScreen
         enemy={enemy}
         question={question}
+        answerSeq={1}
         level={1}
         combo={0}
         score={0}
@@ -47,6 +49,7 @@ describe('BattleScreen', () => {
       <BattleScreen
         enemy={enemy}
         question={question}
+        answerSeq={1}
         level={1}
         combo={1}
         score={100}
@@ -64,6 +67,7 @@ describe('BattleScreen', () => {
       <BattleScreen
         enemy={enemy}
         question={question}
+        answerSeq={1}
         level={1}
         combo={0}
         score={0}
@@ -81,6 +85,7 @@ describe('BattleScreen', () => {
       <BattleScreen
         enemy={enemy}
         question={question}
+        answerSeq={1}
         level={1}
         combo={0}
         score={0}
@@ -99,6 +104,7 @@ describe('BattleScreen', () => {
       <BattleScreen
         enemy={enemy}
         question={question}
+        answerSeq={1}
         level={1}
         combo={1}
         score={100}
@@ -116,6 +122,7 @@ describe('BattleScreen', () => {
       <BattleScreen
         enemy={enemy}
         question={question}
+        answerSeq={1}
         level={1}
         combo={0}
         score={0}
@@ -133,6 +140,7 @@ describe('BattleScreen', () => {
       <BattleScreen
         enemy={enemy}
         question={question}
+        answerSeq={1}
         level={1}
         combo={0}
         score={0}
@@ -150,6 +158,7 @@ describe('BattleScreen', () => {
       <BattleScreen
         enemy={enemy}
         question={question}
+        answerSeq={1}
         level={1}
         combo={0}
         score={0}
@@ -167,6 +176,7 @@ describe('BattleScreen', () => {
       <BattleScreen
         enemy={enemy}
         question={question}
+        answerSeq={1}
         level={1}
         combo={1}
         score={100}
@@ -184,6 +194,7 @@ describe('BattleScreen', () => {
       <BattleScreen
         enemy={enemy}
         question={question}
+        answerSeq={1}
         level={1}
         combo={0}
         score={0}

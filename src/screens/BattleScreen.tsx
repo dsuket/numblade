@@ -7,6 +7,7 @@ import type { Enemy as EnemyModel, Question } from '../game/models'
 interface BattleScreenProps {
   enemy: EnemyModel
   question: Question
+  answerSeq: number
   level: number
   combo: number
   score: number
@@ -20,6 +21,7 @@ interface BattleScreenProps {
 export default function BattleScreen({
   enemy,
   question,
+  answerSeq,
   level,
   combo,
   score,
@@ -32,7 +34,7 @@ export default function BattleScreen({
   return (
     <div className="flex flex-col items-center gap-4 w-full max-w-[480px] p-4">
       <span className="text-[#e6f1ff]/70 text-sm">レベル {level}</span>
-      <div className="relative" key={question.id}>
+      <div className="relative" key={answerSeq}>
         <div
           data-testid="enemy-shake-wrapper"
           className={lastAnswerCorrect === false ? 'animate-[shake_0.4s_ease-in-out]' : undefined}
@@ -57,11 +59,13 @@ export default function BattleScreen({
       <div className="min-h-8 flex items-center justify-center text-center" data-testid="answer-feedback">
         {battleMessage && <span className="text-[#ffd166] font-bold text-base">{battleMessage}</span>}
         {!battleMessage && lastAnswerCorrect === true && (
-          // Keyed by the (already-advanced) question id so the animation
-          // restarts on every answer, even when the same result (e.g. two
-          // wrong answers in a row) would otherwise render identical text.
+          // Keyed by the answer sequence number so the animation restarts on
+          // every answer, even when the same result (e.g. two wrong answers
+          // in a row) would otherwise render identical text. question.id
+          // can't be used here: it's null/stale during the killing-blow
+          // linger (see App.tsx), so it wouldn't change on that answer.
           <span
-            key={question.id}
+            key={answerSeq}
             className="text-[#4ade80] font-bold text-lg animate-[feedback-pop_2.5s_ease-out_forwards]"
           >
             せいかい！
@@ -69,7 +73,7 @@ export default function BattleScreen({
         )}
         {!battleMessage && lastAnswerCorrect === false && (
           <span
-            key={question.id}
+            key={answerSeq}
             className="text-[#ff4d6d] font-bold text-lg animate-[feedback-pop_2.5s_ease-out_forwards]"
           >
             ざんねん…もういちど！

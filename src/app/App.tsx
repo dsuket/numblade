@@ -44,7 +44,10 @@ export default function App() {
     if (!arrived) return
     setLingerActive(true)
     const timer = setTimeout(() => setLingerActive(false), KILLING_BLOW_LINGER_MS)
-    return () => clearTimeout(timer)
+    return () => {
+      clearTimeout(timer)
+      setLingerActive(false)
+    }
   }, [state.screen])
 
   if (state.screen === 'title') {
@@ -65,6 +68,7 @@ export default function App() {
         <BattleScreen
           enemy={state.enemy}
           question={question}
+          answerSeq={state.questionsAnswered}
           level={state.level}
           combo={state.combo}
           score={state.score}
