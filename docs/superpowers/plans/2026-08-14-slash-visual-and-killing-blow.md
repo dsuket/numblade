@@ -252,21 +252,24 @@ export default function App() {
   // True only on the render where the screen just flipped away from
   // 'battle' into 'defeated'/'result' — prevScreenRef hasn't been updated
   // for this render yet (that happens in the effect below, after commit).
-  // This is what lets the killing blow's slash effect render for at least
-  // one frame before lingerActive (set asynchronously) catches up.
+  // This lets the killing blow's slash effect render on the very first
+  // frame, before lingerActive (set asynchronously) catches up. Read only
+  // here, at render time — it must never be a useEffect dependency: it is
+  // true for exactly one render by construction, so an effect keyed on it
+  // would have its cleanup torn down on the very next render, before any
+  // timer it started gets a chance to fire.
   const justDefeated =
     (state.screen === 'defeated' || state.screen === 'result') && prevScreenRef.current === 'battle'
 
   useEffect(() => {
+    const arrived =
+      (state.screen === 'defeated' || state.screen === 'result') && prevScreenRef.current === 'battle'
     prevScreenRef.current = state.screen
-  })
-
-  useEffect(() => {
-    if (!justDefeated) return
+    if (!arrived) return
     setLingerActive(true)
     const timer = setTimeout(() => setLingerActive(false), KILLING_BLOW_LINGER_MS)
     return () => clearTimeout(timer)
-  }, [justDefeated])
+  }, [state.screen])
 
   if (state.screen === 'title') {
     return (
