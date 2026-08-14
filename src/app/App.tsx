@@ -116,6 +116,7 @@ export default function App() {
           lastAnswerCorrect={state.lastAnswerCorrect}
           battleMessage={state.battleMessage}
           onAnswer={(value) => dispatch({ type: 'ANSWER', value, elapsedMs: Date.now() - questionStartedAtRef.current })}
+          onQuitToTitle={() => dispatch({ type: 'QUIT_TO_TITLE' })}
           disabled={state.screen !== 'battle'}
           elapsedSeconds={elapsedSeconds}
           bonusTier={state.bonusTier}
@@ -146,6 +147,7 @@ export default function App() {
           score={state.score}
           highScore={state.highScore}
           onRestart={() => dispatch({ type: 'RESTART' })}
+          onQuitToTitle={() => dispatch({ type: 'QUIT_TO_TITLE' })}
         />
       </div>
     )

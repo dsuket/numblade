@@ -12,6 +12,7 @@ describe('GameOverScreen', () => {
         score={320}
         highScore={1450}
         onRestart={() => {}}
+        onQuitToTitle={() => {}}
       />,
     )
     expect(screen.getByText('ゲームオーバー')).toBeInTheDocument()
@@ -30,9 +31,27 @@ describe('GameOverScreen', () => {
         score={320}
         highScore={1450}
         onRestart={onRestart}
+        onQuitToTitle={() => {}}
       />,
     )
     fireEvent.click(screen.getByRole('button', { name: 'もう一度' }))
     expect(onRestart).toHaveBeenCalledTimes(1)
+  })
+
+  it('calls onQuitToTitle when the quit-to-title link is clicked', () => {
+    const onQuitToTitle = vi.fn()
+    render(
+      <GameOverScreen
+        correctAnswered={5}
+        questionsAnswered={9}
+        maxCombo={4}
+        score={320}
+        highScore={1450}
+        onRestart={() => {}}
+        onQuitToTitle={onQuitToTitle}
+      />,
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'タイトルに戻る' }))
+    expect(onQuitToTitle).toHaveBeenCalledTimes(1)
   })
 })

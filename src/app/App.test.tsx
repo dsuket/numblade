@@ -33,7 +33,11 @@ const SLOW_ANSWER_MS = 11000
 function clickWrongAnswer() {
   const expressionText = screen.getByText(/=\s*\?/).textContent ?? ''
   const answer = computeAnswer(expressionText.replace(/\s*=\s*\?$/, '').trim())
-  const wrongButton = screen.getAllByRole('button').find((button) => button.textContent !== String(answer))
+  // Choice buttons render a bare number; restrict to those so non-choice
+  // buttons like the quit-to-title link are never mistaken for a choice.
+  const wrongButton = screen
+    .getAllByRole('button')
+    .find((button) => /^\d+$/.test(button.textContent ?? '') && button.textContent !== String(answer))
   if (!wrongButton) throw new Error('no wrong-answer choice available')
   fireEvent.click(wrongButton)
 }
@@ -262,5 +266,28 @@ describe('App', () => {
     }
 
     expect(screen.getByText('ゲームオーバー')).toBeInTheDocument()
+  })
+
+  it('returns to the title screen when quitting from the battle screen', () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'スタート' }))
+
+    fireEvent.click(screen.getByRole('button', { name: 'タイトルに戻る' }))
+
+    expect(screen.getByText('NUMBLADE')).toBeInTheDocument()
+  })
+
+  it('returns to the title screen when quitting from the game-over screen', () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'スタート' }))
+
+    for (let i = 0; i < 4; i++) {
+      clickWrongAnswer()
+    }
+    expect(screen.getByText('ゲームオーバー')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'タイトルに戻る' }))
+
+    expect(screen.getByText('NUMBLADE')).toBeInTheDocument()
   })
 })

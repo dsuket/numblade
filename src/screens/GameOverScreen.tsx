@@ -5,6 +5,7 @@ interface GameOverScreenProps {
   score: number
   highScore: number
   onRestart: () => void
+  onQuitToTitle: () => void
 }
 
 export default function GameOverScreen({
@@ -14,6 +15,7 @@ export default function GameOverScreen({
   score,
   highScore,
   onRestart,
+  onQuitToTitle,
 }: GameOverScreenProps) {
   const accuracy = questionsAnswered === 0 ? 0 : Math.round((correctAnswered / questionsAnswered) * 100)
 
@@ -39,6 +41,13 @@ export default function GameOverScreen({
         onClick={onRestart}
       >
         もう一度
+      </button>
+      <button
+        type="button"
+        className="text-[#3a86ff] underline bg-transparent border-none cursor-pointer p-0"
+        onClick={onQuitToTitle}
+      >
+        タイトルに戻る
       </button>
     </div>
   )

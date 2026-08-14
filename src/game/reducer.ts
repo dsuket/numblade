@@ -34,6 +34,7 @@ export type GameAction =
   | { type: 'CONTINUE' }
   | { type: 'RESTART' }
   | { type: 'RESET_LEVEL' }
+  | { type: 'QUIT_TO_TITLE' }
 
 function questionForLevel(level: DifficultyLevel): Question {
   const params = getLevelParams(level)
@@ -207,6 +208,14 @@ function resetLevel(state: GameState): GameState {
   return { ...state, level }
 }
 
+// Discards the in-progress run and returns to title with the last persisted
+// level/highScore, since no progress was saved mid-battle (only on segment
+// completion via the 'result' screen).
+function quitToTitle(state: GameState): GameState {
+  if (state.screen !== 'battle' && state.screen !== 'gameover') return state
+  return initGameState()
+}
+
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case 'START':
@@ -221,6 +230,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return startBattle(state)
     case 'RESET_LEVEL':
       return resetLevel(state)
+    case 'QUIT_TO_TITLE':
+      return quitToTitle(state)
     default:
       return state
   }

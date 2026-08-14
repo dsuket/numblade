@@ -342,4 +342,37 @@ describe('gameReducer', () => {
       expect(gameReducer(battleState, { type: 'RESET_LEVEL' })).toEqual(battleState)
     })
   })
+
+  describe('QUIT_TO_TITLE', () => {
+    it('returns to the title screen from battle, discarding in-progress score/combo/hp but keeping the persisted level and highScore', () => {
+      saveProgress({ level: 5, highScore: 900 })
+      let state = gameReducer(initGameState(), { type: 'START' })
+      state = playCorrectAnswer(state)
+      expect(state.score).toBeGreaterThan(0)
+
+      const result = gameReducer(state, { type: 'QUIT_TO_TITLE' })
+      expect(result.screen).toBe('title')
+      expect(result.level).toBe(5)
+      expect(result.highScore).toBe(900)
+      expect(result.score).toBe(0)
+      expect(result.combo).toBe(0)
+      expect(result.playerHp).toBe(PLAYER_MAX_HP)
+    })
+
+    it('returns to the title screen from the game-over screen', () => {
+      let state = gameReducer(initGameState(), { type: 'START' })
+      for (let i = 0; i < PLAYER_MAX_HP; i++) {
+        state = playWrongAnswer(state)
+      }
+      expect(state.screen).toBe('gameover')
+
+      const result = gameReducer(state, { type: 'QUIT_TO_TITLE' })
+      expect(result.screen).toBe('title')
+    })
+
+    it('is a no-op outside the battle and game-over screens', () => {
+      const titleState = initGameState()
+      expect(gameReducer(titleState, { type: 'QUIT_TO_TITLE' })).toEqual(titleState)
+    })
+  })
 })

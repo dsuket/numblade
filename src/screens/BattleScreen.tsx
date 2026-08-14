@@ -18,6 +18,7 @@ interface BattleScreenProps {
   lastAnswerCorrect: boolean | null
   battleMessage: string | null
   onAnswer: (value: number) => void
+  onQuitToTitle?: () => void
   disabled?: boolean
   elapsedSeconds?: number
   bonusTier?: BonusTier
@@ -36,15 +37,26 @@ export default function BattleScreen({
   lastAnswerCorrect,
   battleMessage,
   onAnswer,
+  onQuitToTitle = () => {},
   disabled,
   elapsedSeconds = 0,
   bonusTier = null,
 }: BattleScreenProps) {
   return (
     <div className="flex flex-col items-center gap-4 w-full max-w-[480px] p-4">
-      <div className="flex justify-between w-full text-[#e6f1ff]/70 text-sm">
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center w-full text-[#e6f1ff]/70 text-sm">
         <span>レベル {level}</span>
-        <span data-testid="turn-timer">⏱ {elapsedSeconds}秒</span>
+        <button
+          type="button"
+          className="justify-self-center text-[#3a86ff] underline bg-transparent border-none cursor-pointer p-0 disabled:opacity-50 disabled:cursor-default"
+          onClick={onQuitToTitle}
+          disabled={disabled}
+        >
+          タイトルに戻る
+        </button>
+        <span data-testid="turn-timer" className="justify-self-end">
+          ⏱ {elapsedSeconds}秒
+        </span>
       </div>
       <div className="relative" key={answerSeq}>
         <div

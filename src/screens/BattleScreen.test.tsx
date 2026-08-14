@@ -1,5 +1,5 @@
-import { render, screen, within } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { fireEvent, render, screen, within } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
 import BattleScreen from './BattleScreen'
 import type { Enemy, Question } from '../game/models'
 
@@ -431,5 +431,28 @@ describe('BattleScreen', () => {
       />,
     )
     expect(screen.queryByTestId('bonus-effect')).not.toBeInTheDocument()
+  })
+
+  it('calls onQuitToTitle when the quit-to-title link is clicked', () => {
+    const onQuitToTitle = vi.fn()
+    render(
+      <BattleScreen
+        enemy={enemy}
+        question={question}
+        answerSeq={1}
+        level={1}
+        combo={0}
+        score={0}
+        isBoss={false}
+        playerHp={4}
+        playerMaxHp={4}
+        lastAnswerCorrect={null}
+        battleMessage={null}
+        onAnswer={() => {}}
+        onQuitToTitle={onQuitToTitle}
+      />,
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'タイトルに戻る' }))
+    expect(onQuitToTitle).toHaveBeenCalledTimes(1)
   })
 })
