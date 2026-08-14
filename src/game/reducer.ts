@@ -30,10 +30,6 @@ function questionForLevel(level: DifficultyLevel): Question {
   return generateQuestion(params.digitsA, params.digitsB, params.operation)
 }
 
-function segmentQuestionsBefore(segmentIndex: number): number {
-  return ENEMY_SEQUENCE.slice(0, segmentIndex).reduce((sum, s) => sum + s.questionCount, 0)
-}
-
 export function initGameState(): GameState {
   const stored = loadProgress()
   return {
@@ -89,8 +85,9 @@ function answer(state: GameState, value: number): GameState {
   // instead of re-triggering on every subsequent answer.
   const recentResults = level === state.level ? pendingRecentResults : []
 
-  const segmentQuestionsUsed = questionsAnswered - segmentQuestionsBefore(state.segmentIndex)
-  const segmentDone = segmentQuestionsUsed >= segment.questionCount || isDefeated(enemy)
+  // Only a defeated enemy ends the segment — a wrong answer never ends the
+  // battle by itself, it just resets combo and serves a new question.
+  const segmentDone = isDefeated(enemy)
   const isLastSegment = state.segmentIndex === ENEMY_SEQUENCE.length - 1
 
   const base: GameState = {

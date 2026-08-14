@@ -33,6 +33,22 @@ describe('gameReducer', () => {
     expect(state.enemy!.hp).toBe(hpBefore)
   })
 
+  it('does not end the battle or advance the segment no matter how many wrong answers are given', () => {
+    let state = gameReducer(initGameState(), { type: 'START' })
+    const firstEnemyId = state.enemy!.id
+
+    // Answer wrong far more times than the segment's question count (3) —
+    // the battle must keep serving new questions instead of ending.
+    for (let i = 0; i < 10; i++) {
+      state = playWrongAnswer(state)
+      expect(state.screen).toBe('battle')
+      expect(state.segmentIndex).toBe(0)
+      expect(state.enemy!.id).toBe(firstEnemyId)
+      expect(state.enemy!.hp).toBe(state.enemy!.maxHp)
+      expect(state.question).not.toBeNull()
+    }
+  })
+
   it('advances to the second enemy after the first segment question count is used', () => {
     let state = gameReducer(initGameState(), { type: 'START' })
     for (let i = 0; i < ENEMY_SEQUENCE[0].questionCount; i++) {

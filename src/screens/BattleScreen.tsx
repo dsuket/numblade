@@ -10,6 +10,7 @@ interface BattleScreenProps {
   combo: number
   score: number
   isBoss: boolean
+  lastAnswerCorrect: boolean | null
   onAnswer: (value: number) => void
 }
 
@@ -19,6 +20,7 @@ export default function BattleScreen({
   combo,
   score,
   isBoss,
+  lastAnswerCorrect,
   onAnswer,
 }: BattleScreenProps) {
   return (
@@ -28,6 +30,10 @@ export default function BattleScreen({
       <div className="flex justify-between w-full text-[#e6f1ff]">
         <ComboDisplay combo={combo} />
         <span>スコア {score}</span>
+      </div>
+      <div className="h-8 flex items-center justify-center" data-testid="answer-feedback">
+        {lastAnswerCorrect === true && <span className="text-[#4ade80] font-bold text-lg">せいかい！</span>}
+        {lastAnswerCorrect === false && <span className="text-[#ff4d6d] font-bold text-lg">ざんねん…もういちど！</span>}
       </div>
       <QuestionPanel question={question} onAnswer={onAnswer} />
     </div>

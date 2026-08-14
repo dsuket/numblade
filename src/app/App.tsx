@@ -29,6 +29,7 @@ export default function App() {
           combo={state.combo}
           score={state.score}
           isBoss={isBoss}
+          lastAnswerCorrect={state.lastAnswerCorrect}
           onAnswer={(value) => dispatch({ type: 'ANSWER', value })}
         />
       </div>
