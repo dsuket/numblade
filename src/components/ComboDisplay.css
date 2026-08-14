@@ -1,0 +1,10 @@
+.combo-display {
+  font-size: 1.25rem;
+  color: #ffd166;
+  font-weight: bold;
+}
+
+.combo-display--milestone {
+  color: #ff4d6d;
+  text-shadow: 0 0 8px #ff4d6d;
+}
