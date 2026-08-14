@@ -68,7 +68,7 @@ export default function BattleScreen({
             aria-hidden="true"
             className="absolute inset-0 flex items-center justify-center overflow-hidden"
           >
-            <span className="w-[160%] h-[3px] bg-gradient-to-r from-transparent via-white to-transparent animate-[slash-line_0.35s_ease-out_forwards]" />
+            <span className="shrink-0 w-[160%] h-[3px] bg-gradient-to-r from-transparent via-white to-transparent animate-[slash-line_0.35s_ease-out_forwards]" />
           </span>
         )}
       </div>
