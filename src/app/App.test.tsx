@@ -1,18 +1,22 @@
 import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import App from './App'
 
 describe('App', () => {
-  it('renders the NUMBLADE title and a question', () => {
-    render(<App />)
-    expect(screen.getByText('NUMBLADE')).toBeInTheDocument()
-    expect(screen.getByText(/=\s*\?/)).toBeInTheDocument()
+  beforeEach(() => {
+    localStorage.clear()
   })
 
-  it('shows feedback after selecting a choice', () => {
+  it('shows the title screen with a start button', () => {
     render(<App />)
-    const buttons = screen.getAllByRole('button')
-    fireEvent.click(buttons[0])
-    expect(screen.getByTestId('feedback')).toBeInTheDocument()
+    expect(screen.getByText('NUMBLADE')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'スタート' })).toBeInTheDocument()
+  })
+
+  it('starts the battle after clicking the start button', () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'スタート' }))
+    expect(screen.getByTestId('enemy')).toBeInTheDocument()
+    expect(screen.getByText(/=\s*\?/)).toBeInTheDocument()
   })
 })

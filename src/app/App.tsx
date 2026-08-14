@@ -1,54 +1,48 @@
-import { useState } from 'react'
-import HpBar from '../components/HpBar'
-import QuestionPanel from '../components/QuestionPanel'
-import { applyDamage, isDefeated } from '../game/battle'
-import type { Enemy } from '../game/models'
-import { generateQuestion } from '../game/questionGenerator'
-import { nextCombo, scoreForAnswer } from '../game/scoring'
+import { useReducer } from 'react'
+import { ENEMY_SEQUENCE } from '../game/battle'
+import { gameReducer, initGameState } from '../game/reducer'
+import BattleScreen from '../screens/BattleScreen'
+import ResultScreen from '../screens/ResultScreen'
+import TitleScreen from '../screens/TitleScreen'
 import './App.css'
 
-const DAMAGE_PER_CORRECT_ANSWER = 25
-
-function makeEnemy(): Enemy {
-  return { id: 'prototype-enemy', name: 'Slime', maxHp: 100, hp: 100 }
-}
-
 export default function App() {
-  const [enemy, setEnemy] = useState<Enemy>(makeEnemy)
-  const [question, setQuestion] = useState(() => generateQuestion(1, 1))
-  const [combo, setCombo] = useState(0)
-  const [score, setScore] = useState(0)
-  const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(null)
+  const [state, dispatch] = useReducer(gameReducer, undefined, initGameState)
 
-  const defeated = isDefeated(enemy)
+  if (state.screen === 'title') {
+    return (
+      <div className="app">
+        <TitleScreen highScore={state.highScore} onStart={() => dispatch({ type: 'START' })} />
+      </div>
+    )
+  }
 
-  function handleAnswer(value: number) {
-    if (defeated) return
-    const correct = value === question.answer
-    setFeedback(correct ? 'correct' : 'incorrect')
-    setCombo((prev) => nextCombo(prev, correct))
-
-    if (correct) {
-      setScore((prev) => prev + scoreForAnswer(combo))
-      setEnemy((prev) => applyDamage(prev, DAMAGE_PER_CORRECT_ANSWER))
-    }
-
-    setQuestion(generateQuestion(1, 1))
+  if (state.screen === 'battle' && state.enemy && state.question) {
+    const isBoss = ENEMY_SEQUENCE[state.segmentIndex].isBoss
+    return (
+      <div className="app">
+        <BattleScreen
+          enemy={state.enemy}
+          question={state.question}
+          combo={state.combo}
+          score={state.score}
+          isBoss={isBoss}
+          onAnswer={(value) => dispatch({ type: 'ANSWER', value })}
+        />
+      </div>
+    )
   }
 
   return (
     <div className="app">
-      <h1>NUMBLADE</h1>
-      {defeated ? (
-        <p data-testid="victory-message">敵を倒した！ Score: {score}</p>
-      ) : (
-        <>
-          <HpBar hp={enemy.hp} maxHp={enemy.maxHp} />
-          <p>Combo: {combo} / Score: {score}</p>
-          {feedback && <p data-testid="feedback">{feedback === 'correct' ? '正解！' : '不正解'}</p>}
-          <QuestionPanel question={question} onAnswer={handleAnswer} />
-        </>
-      )}
+      <ResultScreen
+        correctAnswered={state.correctAnswered}
+        questionsAnswered={state.questionsAnswered}
+        maxCombo={state.maxCombo}
+        score={state.score}
+        highScore={state.highScore}
+        onRestart={() => dispatch({ type: 'RESTART' })}
+      />
     </div>
   )
 }
