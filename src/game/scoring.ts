@@ -1,3 +1,5 @@
+import type { DifficultyLevel } from './difficulty'
+
 const COMBO_BONUS: Record<number, number> = {
   3: 50,
   5: 100,
@@ -25,9 +27,15 @@ export function multiplierForTier(tier: BonusTier): number {
   return 1
 }
 
+// level=1 is 1.0x; each level above that adds 0.4x, so level=6 (MAX_LEVEL)
+// is 3.0x. Rewards playing at a higher difficulty with a bigger score.
+export function levelFactor(level: DifficultyLevel): number {
+  return 1 + (level - 1) * 0.4
+}
+
 // Base +100 per correct answer, plus a one-time milestone bonus the exact
 // moment combo reaches 3 / 5 / 10 (spec section 3.4), scaled by the speed
-// bonus multiplier and rounded to the nearest point.
-export function scoreForAnswer(combo: number, multiplier: number): number {
-  return Math.round((100 + (COMBO_BONUS[combo] ?? 0)) * multiplier)
+// bonus multiplier and the level factor, and rounded to the nearest point.
+export function scoreForAnswer(combo: number, multiplier: number, level: DifficultyLevel): number {
+  return Math.round((100 + (COMBO_BONUS[combo] ?? 0)) * multiplier * levelFactor(level))
 }

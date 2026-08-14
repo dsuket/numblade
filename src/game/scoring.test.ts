@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { bonusTierForElapsed, multiplierForTier, nextCombo, scoreForAnswer } from './scoring'
+import { bonusTierForElapsed, levelFactor, multiplierForTier, nextCombo, scoreForAnswer } from './scoring'
 
 describe('nextCombo', () => {
   it('increments combo by 1 on correct answer', () => {
@@ -52,28 +52,54 @@ describe('multiplierForTier', () => {
   })
 })
 
+describe('levelFactor', () => {
+  it('returns 1.0 at level 1 (no bonus)', () => {
+    expect(levelFactor(1)).toBe(1)
+  })
+
+  it('increases by 0.4 per level', () => {
+    expect(levelFactor(2)).toBe(1.4)
+    expect(levelFactor(3)).toBe(1.8)
+    expect(levelFactor(4)).toBe(2.2)
+    expect(levelFactor(5)).toBe(2.6)
+  })
+
+  it('returns 3.0 at the max level (6)', () => {
+    expect(levelFactor(6)).toBe(3)
+  })
+})
+
 describe('scoreForAnswer', () => {
-  it('awards the base 100 points with no milestone and no multiplier', () => {
-    expect(scoreForAnswer(1, 1)).toBe(100)
-    expect(scoreForAnswer(2, 1)).toBe(100)
-    expect(scoreForAnswer(4, 1)).toBe(100)
+  it('awards the base 100 points with no milestone and no multiplier, at level 1', () => {
+    expect(scoreForAnswer(1, 1, 1)).toBe(100)
+    expect(scoreForAnswer(2, 1, 1)).toBe(100)
+    expect(scoreForAnswer(4, 1, 1)).toBe(100)
   })
 
   it('adds a +50 bonus exactly at 3-combo', () => {
-    expect(scoreForAnswer(3, 1)).toBe(150)
+    expect(scoreForAnswer(3, 1, 1)).toBe(150)
   })
 
   it('adds a +100 bonus exactly at 5-combo', () => {
-    expect(scoreForAnswer(5, 1)).toBe(200)
+    expect(scoreForAnswer(5, 1, 1)).toBe(200)
   })
 
   it('adds a +300 bonus exactly at 10-combo', () => {
-    expect(scoreForAnswer(10, 1)).toBe(400)
+    expect(scoreForAnswer(10, 1, 1)).toBe(400)
   })
 
-  it('scales the total by the multiplier and rounds', () => {
-    expect(scoreForAnswer(1, 1.5)).toBe(150)
-    expect(scoreForAnswer(1, 1.2)).toBe(120)
-    expect(scoreForAnswer(3, 1.5)).toBe(225) // (100 + 50) * 1.5
+  it('scales the total by the speed multiplier and rounds', () => {
+    expect(scoreForAnswer(1, 1.5, 1)).toBe(150)
+    expect(scoreForAnswer(1, 1.2, 1)).toBe(120)
+    expect(scoreForAnswer(3, 1.5, 1)).toBe(225) // (100 + 50) * 1.5
+  })
+
+  it('scales the total by the level factor', () => {
+    expect(scoreForAnswer(1, 1, 3)).toBe(180) // 100 * 1.8
+    expect(scoreForAnswer(1, 1, 6)).toBe(300) // 100 * 3.0
+  })
+
+  it('combines the speed multiplier and the level factor', () => {
+    expect(scoreForAnswer(1, 1.5, 6)).toBe(450) // 100 * 1.5 * 3.0
   })
 })
