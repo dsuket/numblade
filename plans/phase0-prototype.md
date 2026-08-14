@@ -6,7 +6,9 @@
 
 **アーキテクチャ:** クライアントサイドSPA（Vite + React + TypeScript）。ゲームのドメインロジック（`src/game/*`）はReactに依存しない純粋関数・型として実装し、Reactを描画せずに単体テストできるようにする。この試作の `App.tsx` はローカルの `useState` からこれらの純粋関数を呼び出す構成とし、Phase 1で `useReducer` ベースの状態機械（全10問ループ対応）に置き換える。
 
-**技術スタック:** TypeScript, React 18, Vite, Vitest, @testing-library/react, CSS Modules方式（コンポーネントごとのCSSファイル。Tailwindは仕様書5章の「チームの好みで選択」を踏まえ、雛形をシンプルに保つため今回は採用しない）。
+**技術スタック:** TypeScript, React 18, Vite, Vitest, @testing-library/react, Tailwind CSS（仕様書5章の「チームの好みで選択」を踏まえ採用）。
+
+> **更新履歴:** 当初はコンポーネントごとの素のCSSファイルで実装したが、その後CSSをTailwindに統一する方針に変更した。以下の各タスクのコード例は当初実装時点のものを記録として残しているが、実際のコードは後続のTailwind移行コミットで置き換わっている。今後このプランを参照する場合はTailwindのユーティリティクラスで実装すること。
 
 ## 全体制約（Global Constraints）
 
@@ -15,7 +17,7 @@
 - MVPのUIロジックに画像アセットは不要。画像は装飾のみに使い、ゲーム進行に必要な情報を画像に依存させない（仕様書4.2）。
 - ゲームロジックはReact非依存の純粋関数を優先し、単体テスト可能にする（仕様書7章）。
 - 回答ボタンは最低64px以上のタッチ領域を確保する（仕様書4.3）。このタスクおよび以降のボタン関連実装すべてに適用。
-- パッケージマネージャ: npm。
+- パッケージマネージャ: pnpm。
 - ソースコード中のコメントは英語で記述する（コード自体・UI文言は日本語）。
 
 ---
@@ -220,12 +222,12 @@ dist
 
 - [ ] **Step 13: 依存パッケージをインストールする**
 
-実行: `npm install`
+実行: `pnpm install`
 期待結果: エラーなくインストールが完了し、`package-lock.json` が生成される。
 
 - [ ] **Step 14: テストを実行して成功を確認する**
 
-実行: `npm test`
+実行: `pnpm test`
 期待結果: PASS — `App renders the NUMBLADE title`。
 
 - [ ] **Step 15: コミットする**
@@ -325,7 +327,7 @@ describe('generateQuestion', () => {
 
 - [ ] **Step 2: テストを実行して失敗を確認する**
 
-実行: `npm test -- questionGenerator`
+実行: `pnpm test -- questionGenerator`
 期待結果: FAIL — `Cannot find module './questionGenerator'`。
 
 - [ ] **Step 3: 実装 `src/game/questionGenerator.ts` を書く**
@@ -399,7 +401,7 @@ export function generateQuestion(digitsA: number, digitsB: number): Question {
 
 - [ ] **Step 4: テストを実行して成功を確認する**
 
-実行: `npm test -- questionGenerator`
+実行: `pnpm test -- questionGenerator`
 期待結果: PASS — 全4テスト。
 
 - [ ] **Step 5: コミットする**
@@ -465,7 +467,7 @@ describe('isDefeated', () => {
 
 - [ ] **Step 2: テストを実行して失敗を確認する**
 
-実行: `npm test -- battle`
+実行: `pnpm test -- battle`
 期待結果: FAIL — `Cannot find module './battle'`。
 
 - [ ] **Step 3: 実装 `src/game/battle.ts` を書く**
@@ -484,7 +486,7 @@ export function isDefeated(enemy: Enemy): boolean {
 
 - [ ] **Step 4: テストを実行して成功を確認する**
 
-実行: `npm test -- battle`
+実行: `pnpm test -- battle`
 期待結果: PASS — 全5テスト。
 
 - [ ] **Step 5: コミットする**
@@ -531,7 +533,7 @@ describe('scoreForAnswer', () => {
 
 - [ ] **Step 2: テストを実行して失敗を確認する**
 
-実行: `npm test -- scoring`
+実行: `pnpm test -- scoring`
 期待結果: FAIL — `Cannot find module './scoring'`。
 
 - [ ] **Step 3: 実装 `src/game/scoring.ts` を書く**
@@ -548,7 +550,7 @@ export function scoreForAnswer(_combo: number): number {
 
 - [ ] **Step 4: テストを実行して成功を確認する**
 
-実行: `npm test -- scoring`
+実行: `pnpm test -- scoring`
 期待結果: PASS — 全3テスト。
 
 - [ ] **Step 5: コミットする**
@@ -809,12 +811,12 @@ describe('App', () => {
 
 - [ ] **Step 9: テストを実行して成功を確認する**
 
-実行: `npm test`
+実行: `pnpm test`
 期待結果: PASS — 全スイート（App, questionGenerator, battle, scoring）。
 
 - [ ] **Step 10: 手動確認**
 
-実行: `npm run dev`、表示されたローカルURLをブラウザで開き、選択肢ボタンを連打して敵を倒し、勝利メッセージが表示されることを確認する。
+実行: `pnpm dev`、表示されたローカルURLをブラウザで開き、選択肢ボタンを連打して敵を倒し、勝利メッセージが表示されることを確認する。
 
 - [ ] **Step 11: コミットする**
 
@@ -827,6 +829,6 @@ git commit -m "feat: wire minimal playable single-enemy prototype screen"
 
 ## Phase 0 完了条件（Definition of Done）
 
-- [ ] `npm test` が失敗なく通ること。
-- [ ] `npm run dev` で表示される画面で、問題に正解すると敵にダメージが入り、HPが0になると勝利メッセージが表示されること。
+- [ ] `pnpm test` が失敗なく通ること。
+- [ ] `pnpm dev` で表示される画面で、問題に正解すると敵にダメージが入り、HPが0になると勝利メッセージが表示されること。
 - [ ] `src/game/*` の各モジュールがReactをimportしていない（純粋関数のみ）こと。

@@ -6,7 +6,9 @@
 
 **アーキテクチャ:** 同じくクライアントサイドSPA。ゲーム進行全体を単一の `useReducer` ステートマシン（`src/game/reducer.ts`）にまとめ、3画面（`title` / `battle` / `result`）を制御する。新規のゲーム進行ロジックはすべてReact非依存の `src/game/*` / `src/storage/*` に置き、Reactコンポーネントは状態を読んでactionをdispatchするだけにする。
 
-**技術スタック:** Phase 0と同じ（TypeScript, React 18, Vite, Vitest, @testing-library/react, コンポーネント単位のCSS）。
+**技術スタック:** Phase 0と同じ（TypeScript, React 18, Vite, Vitest, @testing-library/react）。CSSはTailwind CSSに統一する。
+
+> **更新履歴:** このプランの各タスクのコード例（CSSファイル）は、Tailwind移行前に実装した時点のものを記録として残している。実際のコードは後続のTailwind移行コミットで置き換わっている。今後このプランを参照する場合はTailwindのユーティリティクラスで実装すること。
 
 ## 全体制約（Global Constraints）
 
@@ -17,7 +19,7 @@
 - スコア: 正解ごとに基礎+100点。コンボ3で+50、コンボ5で+100、コンボ10で+300のボーナス（仕様書3.4）。**判断事項（仕様書に完全には明記されていない点）:** ボーナスは「そのコンボ数に到達した瞬間の1回のみ」加算される一時的なマイルストーン報酬とし、以降毎回加算され続けるものではない。これは仕様書の文言（「3連続正解: …ボーナス+50」）に忠実な解釈である。
 - **判断事項:** 敵セグメントの切り替えは、その敵に割り当てられた問題数を使い切ったタイミングで行う（3.1章の「10問固定」という仕様との整合性を優先）。敵のHPは「1問正解ごとのダメージ = `ceil(maxHp / questionCount)`」で調整し、全問正解であればセグメント境界でちょうどHP0になるようにする。これにより3.2章の「敵HPが0以下になった時点で撃破」という説明も、セグメント長をHP依存にすることなく満たせる。
 - **仕様書3.5/6.2からの意図的な簡略化:** 仕様書が想定する `generateQuestion` インターフェースは名前付き引数のオブジェクトを受け取り `skillId` を返す形、また6.2章ではスキルごとの `SkillStats` モデルが示唆されている。本プランでは、よりシンプルな位置引数版 `generateQuestion(digitsA, digitsB, operation)` と、スキル別ではなく単一のローリング配列 `recentResults` によって難易度を適応させる方式を採用する。仕様書9章のMVP受入条件はスキル別トラッキングを要求していないため、これはPhase 3（「苦手再出題・習熟度」）以降で検討すべき事項として今回は見送る。
-- パッケージマネージャ: npm。
+- パッケージマネージャ: pnpm。
 - ソースコード中のコメントは英語で記述する。UI文言・ゲーム内テキストはすべて日本語にする。
 
 ---
@@ -77,7 +79,7 @@ describe('nextLevel', () => {
 
 - [ ] **Step 2: テストを実行して失敗を確認する**
 
-実行: `npm test -- difficulty`
+実行: `pnpm test -- difficulty`
 期待結果: FAIL — `Cannot find module './difficulty'`。
 
 - [ ] **Step 3: 実装 `src/game/difficulty.ts` を書く**
@@ -129,7 +131,7 @@ export function nextLevel(current: DifficultyLevel, recentResults: boolean[]): D
 
 - [ ] **Step 4: テストを実行して成功を確認する**
 
-実行: `npm test -- difficulty`
+実行: `pnpm test -- difficulty`
 期待結果: PASS — 全8テスト。
 
 - [ ] **Step 5: コミットする**
@@ -204,7 +206,7 @@ describe('generateQuestion (divide)', () => {
 
 - [ ] **Step 2: テストを実行して割り算関連が失敗することを確認する**
 
-実行: `npm test -- questionGenerator`
+実行: `pnpm test -- questionGenerator`
 期待結果: FAIL — 割り算のテストが失敗する（`generateQuestion` が `operation` 引数を受け付けない／`x` の式しか生成しないため）。
 
 - [ ] **Step 3: `src/game/questionGenerator.ts` を拡張版の実装に置き換える**
@@ -301,7 +303,7 @@ export function generateQuestion(
 
 - [ ] **Step 4: テストを実行して成功を確認する**
 
-実行: `npm test -- questionGenerator`
+実行: `pnpm test -- questionGenerator`
 期待結果: PASS — 全5テスト。
 
 - [ ] **Step 5: コミットする**
@@ -361,7 +363,7 @@ describe('scoreForAnswer', () => {
 
 - [ ] **Step 2: テストを実行してマイルストーン関連が失敗することを確認する**
 
-実行: `npm test -- scoring`
+実行: `pnpm test -- scoring`
 期待結果: FAIL — `scoreForAnswer(3)` などが100を返し、ボーナスが加算されていない。
 
 - [ ] **Step 3: `src/game/scoring.ts` を拡張版の実装に置き換える**
@@ -387,7 +389,7 @@ export function scoreForAnswer(combo: number): number {
 
 - [ ] **Step 4: テストを実行して成功を確認する**
 
-実行: `npm test -- scoring`
+実行: `pnpm test -- scoring`
 期待結果: PASS — 全6テスト。
 
 - [ ] **Step 5: コミットする**
@@ -438,7 +440,7 @@ describe('gameStorage', () => {
 
 - [ ] **Step 2: テストを実行して失敗を確認する**
 
-実行: `npm test -- gameStorage`
+実行: `pnpm test -- gameStorage`
 期待結果: FAIL — `Cannot find module './gameStorage'`。
 
 - [ ] **Step 3: 実装 `src/storage/gameStorage.ts` を書く**
@@ -473,7 +475,7 @@ export function loadProgress(): StoredProgress | null {
 
 - [ ] **Step 4: テストを実行して成功を確認する**
 
-実行: `npm test -- gameStorage`
+実行: `pnpm test -- gameStorage`
 期待結果: PASS — 全3テスト。
 
 - [ ] **Step 5: コミットする**
@@ -564,7 +566,7 @@ describe('damagePerCorrectAnswer', () => {
 
 - [ ] **Step 2: テストを実行して新規テストが失敗することを確認する**
 
-実行: `npm test -- battle`
+実行: `pnpm test -- battle`
 期待結果: FAIL — `ENEMY_SEQUENCE`, `createEnemy`, `damagePerCorrectAnswer` がexportされていない。
 
 - [ ] **Step 3: `src/game/battle.ts` を拡張版の実装に置き換える**
@@ -604,7 +606,7 @@ export function damagePerCorrectAnswer(segment: EnemySegment): number {
 
 - [ ] **Step 4: テストを実行して成功を確認する**
 
-実行: `npm test -- battle`
+実行: `pnpm test -- battle`
 期待結果: PASS — 全9テスト。
 
 - [ ] **Step 5: コミットする**
@@ -699,7 +701,7 @@ describe('gameReducer', () => {
 
 - [ ] **Step 2: テストを実行して失敗を確認する**
 
-実行: `npm test -- reducer`
+実行: `pnpm test -- reducer`
 期待結果: FAIL — `Cannot find module './reducer'`。
 
 - [ ] **Step 3: 実装 `src/game/reducer.ts` を書く**
@@ -844,7 +846,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
 - [ ] **Step 4: テストを実行して成功を確認する**
 
-実行: `npm test -- reducer`
+実行: `pnpm test -- reducer`
 期待結果: PASS — 全5テスト。
 
 - [ ] **Step 5: コミットする**
@@ -1253,12 +1255,12 @@ describe('App', () => {
 
 - [ ] **Step 3: テストスイート全体を実行する**
 
-実行: `npm test`
+実行: `pnpm test`
 期待結果: PASS — `src/game`, `src/storage`, `src/app` 配下の全スイート。
 
 - [ ] **Step 4: 手動確認**
 
-実行: `npm run dev`、ローカルURLを開き、「スタート」をクリックして10問すべてに答える（正解・不正解を混ぜる）。確認項目: 敵が2回切り替わる（通常敵2体＋見た目の異なるボス）、不正解でコンボがリセットされる、リザルト画面に正答率・最大コンボ・スコア・ハイスコアが表示される、「もう一度」で新しいバトルに戻る、ゲーム終了後にページをリロードしてもタイトル画面のハイスコアが更新された値で保持されている。
+実行: `pnpm dev`、ローカルURLを開き、「スタート」をクリックして10問すべてに答える（正解・不正解を混ぜる）。確認項目: 敵が2回切り替わる（通常敵2体＋見た目の異なるボス）、不正解でコンボがリセットされる、リザルト画面に正答率・最大コンボ・スコア・ハイスコアが表示される、「もう一度」で新しいバトルに戻る、ゲーム終了後にページをリロードしてもタイトル画面のハイスコアが更新された値で保持されている。
 
 - [ ] **Step 5: コミットする**
 
@@ -1275,15 +1277,15 @@ git commit -m "feat: wire full title/battle/result game loop"
 
 - [ ] **Step 1: 自動テストスイートを全体実行する**
 
-実行: `npm test`
+実行: `pnpm test`
 期待結果: PASS — 全スイートで失敗0件。
 
 - [ ] **Step 2: 本番ビルドを実行する**
 
-実行: `npm run build`
+実行: `pnpm build`
 期待結果: TypeScriptエラーなく成功する。
 
-- [ ] **Step 3: 仕様書9章の受入条件を、実際に動くアプリ（`npm run dev`）で1つずつ確認する**
+- [ ] **Step 3: 仕様書9章の受入条件を、実際に動くアプリ（`pnpm dev`）で1つずつ確認する**
 
 それぞれチェックし、どの実装が満たしているかを併記する:
 
@@ -1303,6 +1305,6 @@ git commit -m "feat: wire full title/battle/result game loop"
 
 ## Phase 1 完了条件（Definition of Done）
 
-- [ ] Phase 0・Phase 1すべての自動テストが通ること（`npm test`）。
-- [ ] `npm run build` が成功すること。
+- [ ] Phase 0・Phase 1すべての自動テストが通ること（`pnpm test`）。
+- [ ] `pnpm build` が成功すること。
 - [ ] Task 10の受入チェックリストの全項目が、実際に動くアプリで確認済みであること。
