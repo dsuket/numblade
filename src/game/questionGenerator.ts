@@ -11,6 +11,13 @@ function digitRange(digits: number): [number, number] {
   return [min, max]
 }
 
+// Same as digitRange, but excludes 1 — used where an operand of 1 would
+// make the question trivial (a factor of 1, or a divisor of 1).
+function nonOneRange(digits: number): [number, number] {
+  const [min, max] = digitRange(digits)
+  return min === 1 ? [2, max] : [min, max]
+}
+
 function buildDistractors(answer: number, count: number): number[] {
   const distractors = new Set<number>()
   const candidates = [answer + 1, answer - 1, answer + 10, answer - 10, answer * 2].filter(
@@ -48,8 +55,8 @@ function buildQuestion(expression: string, answer: number): Question {
 }
 
 function generateMultiplyQuestion(digitsA: number, digitsB: number): Question {
-  const [minA, maxA] = digitRange(digitsA)
-  const [minB, maxB] = digitRange(digitsB)
+  const [minA, maxA] = nonOneRange(digitsA)
+  const [minB, maxB] = nonOneRange(digitsB)
   const a = randomInt(minA, maxA)
   const b = randomInt(minB, maxB)
   return buildQuestion(`${a} x ${b}`, a * b)
@@ -57,7 +64,7 @@ function generateMultiplyQuestion(digitsA: number, digitsB: number): Question {
 
 function generateDivideQuestion(digitsA: number, digitsB: number): Question {
   const [minDividend, maxDividend] = digitRange(digitsA)
-  const [minDivisor, maxDivisor] = digitRange(digitsB)
+  const [minDivisor, maxDivisor] = nonOneRange(digitsB)
 
   for (let attempt = 0; attempt < 50; attempt++) {
     const divisor = randomInt(minDivisor, maxDivisor)
@@ -71,7 +78,7 @@ function generateDivideQuestion(digitsA: number, digitsB: number): Question {
   }
 
   // Fallback: guaranteed-valid single-digit case if the loop above can't find a fit.
-  const divisor = randomInt(1, 9)
+  const divisor = randomInt(2, 9)
   const quotient = randomInt(1, 9)
   return buildQuestion(`${divisor * quotient} ÷ ${divisor}`, quotient)
 }

@@ -16,6 +16,15 @@ describe('generateQuestion (multiply, default operation)', () => {
     expect(new Set(q.choices).size).toBe(4)
     expect(q.choices).toContain(q.answer)
   })
+
+  it('never uses 1 as either operand', () => {
+    for (let i = 0; i < 50; i++) {
+      const q = generateQuestion(1, 1)
+      const [a, , b] = q.expression.split(' ')
+      expect(Number(a)).not.toBe(1)
+      expect(Number(b)).not.toBe(1)
+    }
+  })
 })
 
 describe('generateQuestion (divide)', () => {
@@ -42,5 +51,13 @@ describe('generateQuestion (divide)', () => {
     expect(q.choices).toHaveLength(4)
     expect(new Set(q.choices).size).toBe(4)
     expect(q.choices).toContain(q.answer)
+  })
+
+  it('never uses 1 as the divisor', () => {
+    for (let i = 0; i < 50; i++) {
+      const q = generateQuestion(2, 1, 'divide')
+      const [, divisor] = q.expression.split(' ÷ ').map(Number)
+      expect(divisor).not.toBe(1)
+    }
   })
 })
