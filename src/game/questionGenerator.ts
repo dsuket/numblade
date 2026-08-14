@@ -1,4 +1,4 @@
-import type { Question } from './models'
+import type { Operation, Question } from './models'
 
 function randomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min
@@ -13,13 +13,9 @@ function digitRange(digits: number): [number, number] {
 
 function buildDistractors(answer: number, count: number): number[] {
   const distractors = new Set<number>()
-  const candidates = [
-    answer + 1,
-    answer - 1,
-    answer + 10,
-    answer - 10,
-    answer * 2,
-  ].filter((n) => n > 0 && n !== answer)
+  const candidates = [answer + 1, answer - 1, answer + 10, answer - 10, answer * 2].filter(
+    (n) => n > 0 && n !== answer,
+  )
 
   for (const c of candidates) {
     if (distractors.size >= count) break
@@ -45,20 +41,47 @@ function shuffle<T>(items: T[]): T[] {
   return result
 }
 
-export function generateQuestion(digitsA: number, digitsB: number): Question {
+function buildQuestion(expression: string, answer: number): Question {
+  const distractors = buildDistractors(answer, 3)
+  const choices = shuffle([answer, ...distractors])
+  return { id: `${Date.now()}-${expression}-${Math.random()}`, expression, answer, choices }
+}
+
+function generateMultiplyQuestion(digitsA: number, digitsB: number): Question {
   const [minA, maxA] = digitRange(digitsA)
   const [minB, maxB] = digitRange(digitsB)
   const a = randomInt(minA, maxA)
   const b = randomInt(minB, maxB)
-  const answer = a * b
+  return buildQuestion(`${a} x ${b}`, a * b)
+}
 
-  const distractors = buildDistractors(answer, 3)
-  const choices = shuffle([answer, ...distractors])
+function generateDivideQuestion(digitsA: number, digitsB: number): Question {
+  const [minDividend, maxDividend] = digitRange(digitsA)
+  const [minDivisor, maxDivisor] = digitRange(digitsB)
 
-  return {
-    id: `${Date.now()}-${a}-${b}`,
-    expression: `${a} x ${b}`,
-    answer,
-    choices,
+  for (let attempt = 0; attempt < 50; attempt++) {
+    const divisor = randomInt(minDivisor, maxDivisor)
+    const minQuotient = Math.ceil(minDividend / divisor)
+    const maxQuotient = Math.floor(maxDividend / divisor)
+    if (minQuotient > maxQuotient) continue
+
+    const quotient = randomInt(minQuotient, maxQuotient)
+    const dividend = quotient * divisor
+    return buildQuestion(`${dividend} ÷ ${divisor}`, quotient)
   }
+
+  // Fallback: guaranteed-valid single-digit case if the loop above can't find a fit.
+  const divisor = randomInt(1, 9)
+  const quotient = randomInt(1, 9)
+  return buildQuestion(`${divisor * quotient} ÷ ${divisor}`, quotient)
+}
+
+export function generateQuestion(
+  digitsA: number,
+  digitsB: number,
+  operation: Operation = 'multiply',
+): Question {
+  return operation === 'divide'
+    ? generateDivideQuestion(digitsA, digitsB)
+    : generateMultiplyQuestion(digitsA, digitsB)
 }
