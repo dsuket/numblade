@@ -12,6 +12,11 @@ describe('DefeatedScreen', () => {
     expect(screen.getByTestId('enemy')).toBeInTheDocument()
   })
 
+  it('shows an explosion effect over the defeated enemy', () => {
+    render(<DefeatedScreen enemy={enemy} message="ゴブリンをたおした！" onContinue={() => {}} />)
+    expect(screen.getByTestId('explosion')).toBeInTheDocument()
+  })
+
   it('calls onContinue when tapped', () => {
     const onContinue = vi.fn()
     render(<DefeatedScreen enemy={enemy} message="ゴブリンをたおした！" onContinue={onContinue} />)

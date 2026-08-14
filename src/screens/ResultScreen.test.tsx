@@ -17,6 +17,7 @@ describe('ResultScreen', () => {
     expect(screen.getByText('ゲームクリア！')).toBeInTheDocument()
     expect(screen.getByText('正答数: 10 / 12')).toBeInTheDocument()
     expect(screen.getByText('正答率: 83%')).toBeInTheDocument()
+    expect(screen.getByTestId('explosion')).toBeInTheDocument()
   })
 
   it('calls onRestart when the restart button is clicked', () => {

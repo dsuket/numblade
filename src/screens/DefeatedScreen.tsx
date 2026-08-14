@@ -18,6 +18,13 @@ export default function DefeatedScreen({ enemy, message, onContinue }: DefeatedS
         <div className="opacity-40 grayscale">
           <Enemy enemy={enemy} isBoss={false} />
         </div>
+        <span
+          data-testid="explosion"
+          aria-hidden="true"
+          className="absolute inset-0 flex items-center justify-center text-6xl animate-[explode_0.6s_ease-out_forwards]"
+        >
+          💥
+        </span>
         <span className="absolute inset-0 flex items-center justify-center text-center text-[#ffd166] font-bold text-2xl px-2">
           {message}
         </span>

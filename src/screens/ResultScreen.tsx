@@ -19,8 +19,17 @@ export default function ResultScreen({
 
   return (
     <div className="flex flex-col items-center gap-2 text-[#e6f1ff]">
-      <div className="text-6xl" aria-hidden="true">
-        🏆
+      <div className="relative flex items-center justify-center">
+        <span
+          data-testid="explosion"
+          aria-hidden="true"
+          className="absolute inset-0 flex items-center justify-center text-6xl animate-[explode_0.6s_ease-out_forwards]"
+        >
+          💥
+        </span>
+        <div className="text-6xl" aria-hidden="true">
+          🏆
+        </div>
       </div>
       <h2 className="text-4xl font-bold text-[#ffd166] drop-shadow-[0_0_12px_#ffd166] tracking-wider">
         ゲームクリア！
