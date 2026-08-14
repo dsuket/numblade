@@ -82,8 +82,12 @@ function answer(state: GameState, value: number): GameState {
   const enemy = correct ? applyDamage(state.enemy, damagePerCorrectAnswer(segment)) : state.enemy
   const questionsAnswered = state.questionsAnswered + 1
   const correctAnswered = state.correctAnswered + (correct ? 1 : 0)
-  const recentResults = [...state.recentResults, correct].slice(-3)
-  const level = nextLevel(state.level, recentResults)
+  const pendingRecentResults = [...state.recentResults, correct].slice(-3)
+  const level = nextLevel(state.level, pendingRecentResults)
+  // Reset the streak window once it has fired a level change, so a long
+  // unbroken streak steps the level once per 3-correct/2-wrong window
+  // instead of re-triggering on every subsequent answer.
+  const recentResults = level === state.level ? pendingRecentResults : []
 
   const segmentQuestionsUsed = questionsAnswered - segmentQuestionsBefore(state.segmentIndex)
   const segmentDone = segmentQuestionsUsed >= segment.questionCount || isDefeated(enemy)

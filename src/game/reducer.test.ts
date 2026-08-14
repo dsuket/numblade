@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { ENEMY_SEQUENCE } from './battle'
 import { gameReducer, initGameState, type GameState } from './reducer'
+import { saveProgress } from '../storage/gameStorage'
 
 function playCorrectAnswer(state: GameState): GameState {
   if (!state.question) throw new Error('no active question')
@@ -52,6 +53,45 @@ describe('gameReducer', () => {
     expect(state.correctAnswered).toBe(totalQuestions)
     expect(state.score).toBe(1450)
     expect(state.maxCombo).toBe(totalQuestions)
+  })
+
+  it('raises the level once per 3-correct streak, not on every subsequent answer', () => {
+    let state = gameReducer(initGameState(), { type: 'START' })
+    expect(state.level).toBe(1)
+
+    for (let i = 0; i < 3; i++) {
+      state = playCorrectAnswer(state)
+    }
+    expect(state.level).toBe(2)
+
+    // Two more correct answers within the same unbroken streak must not
+    // re-trigger the level-up before another full 3-correct window passes.
+    state = playCorrectAnswer(state)
+    expect(state.level).toBe(2)
+    state = playCorrectAnswer(state)
+    expect(state.level).toBe(2)
+
+    // The next 3-correct window (the 6th consecutive correct answer) raises it again.
+    state = playCorrectAnswer(state)
+    expect(state.level).toBe(3)
+  })
+
+  it('lowers the level once per 2-incorrect streak, not on every subsequent answer', () => {
+    saveProgress({ level: 6, highScore: 0 })
+    let state = gameReducer(initGameState(), { type: 'START' })
+    expect(state.level).toBe(6)
+
+    state = playWrongAnswer(state)
+    state = playWrongAnswer(state)
+    expect(state.level).toBe(5)
+
+    // A 3rd wrong answer within the same unbroken streak must not
+    // re-trigger the level-down before another full 2-wrong window passes.
+    state = playWrongAnswer(state)
+    expect(state.level).toBe(5)
+
+    state = playWrongAnswer(state)
+    expect(state.level).toBe(4)
   })
 
   it('persists highScore to storage when the game ends', () => {

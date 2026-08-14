@@ -19,4 +19,14 @@ describe('gameStorage', () => {
     localStorage.setItem('numblade-progress', 'not json')
     expect(loadProgress()).toBeNull()
   })
+
+  it('returns null when the stored level is out of the valid 1-6 range', () => {
+    localStorage.setItem('numblade-progress', JSON.stringify({ level: 99, highScore: 100 }))
+    expect(loadProgress()).toBeNull()
+  })
+
+  it('returns null when the stored level is not an integer', () => {
+    localStorage.setItem('numblade-progress', JSON.stringify({ level: 2.5, highScore: 100 }))
+    expect(loadProgress()).toBeNull()
+  })
 })
