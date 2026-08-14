@@ -1,5 +1,5 @@
 import { applyDamage, createEnemy, damagePerCorrectAnswer, ENEMY_SEQUENCE, isDefeated } from './battle'
-import { getLevelParams, nextLevel, type DifficultyLevel } from './difficulty'
+import { getLevelParams, MIN_LEVEL, nextLevel, type DifficultyLevel } from './difficulty'
 import type { Enemy, Question } from './models'
 import { applyMiss, isGameOver, PLAYER_MAX_HP } from './player'
 import { generateQuestion } from './questionGenerator'
@@ -33,6 +33,7 @@ export type GameAction =
   | { type: 'TIMEOUT' }
   | { type: 'CONTINUE' }
   | { type: 'RESTART' }
+  | { type: 'RESET_LEVEL' }
 
 function questionForLevel(level: DifficultyLevel): Question {
   const params = getLevelParams(level)
@@ -127,7 +128,7 @@ function answer(state: GameState, value: number, elapsedMs: number): GameState {
   const multiplier = multiplierForTier(bonusTier)
   const combo = nextCombo(state.combo, true)
   const maxCombo = Math.max(state.maxCombo, combo)
-  const score = state.score + scoreForAnswer(combo, multiplier)
+  const score = state.score + scoreForAnswer(combo, multiplier, state.level)
   const enemy = applyDamage(state.enemy, damagePerCorrectAnswer(segment, multiplier))
   const questionsAnswered = state.questionsAnswered + 1
   const correctAnswered = state.correctAnswered + 1
@@ -199,6 +200,13 @@ function continueAfterDefeat(state: GameState): GameState {
   }
 }
 
+function resetLevel(state: GameState): GameState {
+  if (state.screen !== 'title') return state
+  const level = MIN_LEVEL
+  saveProgress({ level, highScore: state.highScore })
+  return { ...state, level }
+}
+
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case 'START':
@@ -211,6 +219,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return continueAfterDefeat(state)
     case 'RESTART':
       return startBattle(state)
+    case 'RESET_LEVEL':
+      return resetLevel(state)
     default:
       return state
   }

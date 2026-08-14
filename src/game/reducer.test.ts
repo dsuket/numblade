@@ -179,8 +179,28 @@ describe('gameReducer', () => {
     }
     expect(state.screen).toBe('result')
     expect(state.correctAnswered).toBe(totalQuestions)
-    expect(state.score).toBe(1450)
+    // With the level factor applied: answers 1-3 at level 1 (x1.0), 4-6 at
+    // level 2 (x1.4), 7-9 at level 3 (x1.8), 10 at level 4 (x2.2) — the
+    // adaptive rule bumps the level once per 3-correct streak.
+    // 100+100+150 + 140+280+140 + 180+180+180 + 880 = 2330
+    expect(state.score).toBe(2330)
     expect(state.maxCombo).toBe(totalQuestions)
+  })
+
+  it('scores an answer using the level factor when starting above level 1', () => {
+    saveProgress({ level: 3, highScore: 0 })
+    let state = gameReducer(initGameState(), { type: 'START' })
+    state = playCorrectAnswer(state)
+    expect(state.score).toBe(180) // 100 * 1.8 (level 3's levelFactor)
+  })
+
+  it('scores an answer at the level in effect when it was asked, not the post-answer level', () => {
+    let state = gameReducer(initGameState(), { type: 'START' })
+    state = playCorrectAnswerAdvancing(state) // combo 1 at level 1 -> 100
+    state = playCorrectAnswerAdvancing(state) // combo 2 at level 1 -> 100
+    state = playCorrectAnswerAdvancing(state) // combo 3 at level 1 -> 150, then level becomes 2
+    expect(state.level).toBe(2)
+    expect(state.score).toBe(350) // 100 + 100 + 150, not 100 + 100 + (150 * 1.4)
   })
 
   it('raises the level once per 3-correct streak, not on every subsequent answer', () => {
@@ -299,6 +319,27 @@ describe('gameReducer', () => {
     it('is a no-op outside the battle screen', () => {
       const titleState = initGameState()
       expect(gameReducer(titleState, { type: 'TIMEOUT' })).toEqual(titleState)
+    })
+  })
+
+  describe('RESET_LEVEL', () => {
+    it('resets the level to MIN_LEVEL and persists it, without touching highScore', () => {
+      saveProgress({ level: 5, highScore: 900 })
+      const state = initGameState()
+      expect(state.level).toBe(5)
+
+      const result = gameReducer(state, { type: 'RESET_LEVEL' })
+      expect(result.level).toBe(1)
+      expect(result.highScore).toBe(900)
+
+      const reloaded = initGameState()
+      expect(reloaded.level).toBe(1)
+      expect(reloaded.highScore).toBe(900)
+    })
+
+    it('is a no-op outside the title screen', () => {
+      const battleState = gameReducer(initGameState(), { type: 'START' })
+      expect(gameReducer(battleState, { type: 'RESET_LEVEL' })).toEqual(battleState)
     })
   })
 })
