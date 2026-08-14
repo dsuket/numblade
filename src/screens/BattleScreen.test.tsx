@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import BattleScreen from './BattleScreen'
 import type { Enemy, Question } from '../game/models'
@@ -17,12 +17,34 @@ describe('BattleScreen', () => {
         combo={0}
         score={0}
         isBoss={false}
+        playerHp={4}
+        playerMaxHp={4}
         lastAnswerCorrect={null}
         battleMessage={null}
         onAnswer={() => {}}
       />,
     )
     expect(screen.getByText('レベル 3')).toBeInTheDocument()
+  })
+
+  it('shows the player hp', () => {
+    render(
+      <BattleScreen
+        enemy={enemy}
+        question={question}
+        answerSeq={1}
+        level={1}
+        combo={0}
+        score={0}
+        isBoss={false}
+        playerHp={3}
+        playerMaxHp={4}
+        lastAnswerCorrect={null}
+        battleMessage={null}
+        onAnswer={() => {}}
+      />,
+    )
+    expect(within(screen.getByTestId('player-hp-bar')).getByText('3 / 4')).toBeInTheDocument()
   })
 
   it('shows no feedback before any answer has been given', () => {
@@ -35,6 +57,8 @@ describe('BattleScreen', () => {
         combo={0}
         score={0}
         isBoss={false}
+        playerHp={4}
+        playerMaxHp={4}
         lastAnswerCorrect={null}
         battleMessage={null}
         onAnswer={() => {}}
@@ -54,6 +78,8 @@ describe('BattleScreen', () => {
         combo={1}
         score={100}
         isBoss={false}
+        playerHp={4}
+        playerMaxHp={4}
         lastAnswerCorrect={true}
         battleMessage={null}
         onAnswer={() => {}}
@@ -72,6 +98,8 @@ describe('BattleScreen', () => {
         combo={0}
         score={0}
         isBoss={false}
+        playerHp={3}
+        playerMaxHp={4}
         lastAnswerCorrect={false}
         battleMessage={null}
         onAnswer={() => {}}
@@ -90,6 +118,8 @@ describe('BattleScreen', () => {
         combo={0}
         score={0}
         isBoss={false}
+        playerHp={4}
+        playerMaxHp={4}
         lastAnswerCorrect={true}
         battleMessage="ゴブリンをたおした！ オーガがあらわれた！"
         onAnswer={() => {}}
@@ -109,6 +139,8 @@ describe('BattleScreen', () => {
         combo={1}
         score={100}
         isBoss={false}
+        playerHp={4}
+        playerMaxHp={4}
         lastAnswerCorrect={true}
         battleMessage={null}
         onAnswer={() => {}}
@@ -127,6 +159,8 @@ describe('BattleScreen', () => {
         combo={0}
         score={0}
         isBoss={false}
+        playerHp={4}
+        playerMaxHp={4}
         lastAnswerCorrect={false}
         battleMessage={null}
         onAnswer={() => {}}
@@ -145,6 +179,8 @@ describe('BattleScreen', () => {
         combo={0}
         score={0}
         isBoss={false}
+        playerHp={4}
+        playerMaxHp={4}
         lastAnswerCorrect={null}
         battleMessage={null}
         onAnswer={() => {}}
@@ -163,6 +199,8 @@ describe('BattleScreen', () => {
         combo={0}
         score={0}
         isBoss={false}
+        playerHp={4}
+        playerMaxHp={4}
         lastAnswerCorrect={false}
         battleMessage={null}
         onAnswer={() => {}}
@@ -181,6 +219,8 @@ describe('BattleScreen', () => {
         combo={1}
         score={100}
         isBoss={false}
+        playerHp={4}
+        playerMaxHp={4}
         lastAnswerCorrect={true}
         battleMessage={null}
         onAnswer={() => {}}
@@ -199,6 +239,8 @@ describe('BattleScreen', () => {
         combo={0}
         score={0}
         isBoss={false}
+        playerHp={4}
+        playerMaxHp={4}
         lastAnswerCorrect={null}
         battleMessage={null}
         onAnswer={() => {}}

@@ -12,6 +12,8 @@ interface BattleScreenProps {
   combo: number
   score: number
   isBoss: boolean
+  playerHp: number
+  playerMaxHp: number
   lastAnswerCorrect: boolean | null
   battleMessage: string | null
   onAnswer: (value: number) => void
@@ -26,6 +28,8 @@ export default function BattleScreen({
   combo,
   score,
   isBoss,
+  playerHp,
+  playerMaxHp,
   lastAnswerCorrect,
   battleMessage,
   onAnswer,
@@ -81,6 +85,10 @@ export default function BattleScreen({
         )}
       </div>
       <QuestionPanel question={question} onAnswer={onAnswer} disabled={disabled} />
+      <div className="w-full" data-testid="player-hp-bar">
+        <span className="text-[#e6f1ff]/70 text-xs">HP</span>
+        <HpBar hp={playerHp} maxHp={playerMaxHp} />
+      </div>
     </div>
   )
 }

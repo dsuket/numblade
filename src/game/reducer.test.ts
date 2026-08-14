@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { ENEMY_SEQUENCE } from './battle'
+import { PLAYER_MAX_HP } from './player'
 import { gameReducer, initGameState, type GameState } from './reducer'
 import { saveProgress } from '../storage/gameStorage'
 
@@ -43,13 +44,21 @@ describe('gameReducer', () => {
     expect(state.enemy!.hp).toBe(hpBefore)
   })
 
-  it('does not end the battle or advance the segment no matter how many wrong answers are given', () => {
+  it('an incorrect answer reduces playerHp by 1', () => {
+    let state = gameReducer(initGameState(), { type: 'START' })
+    expect(state.playerHp).toBe(PLAYER_MAX_HP)
+    state = playWrongAnswer(state)
+    expect(state.playerHp).toBe(PLAYER_MAX_HP - 1)
+  })
+
+  it('does not end the battle or advance the segment while playerHp remains, no matter how many wrong answers are given', () => {
     let state = gameReducer(initGameState(), { type: 'START' })
     const firstEnemyId = state.enemy!.id
 
-    // Answer wrong far more times than the segment's question count (3) —
-    // the battle must keep serving new questions instead of ending.
-    for (let i = 0; i < 10; i++) {
+    // Wrong answers up to (but not including) the miss limit must keep the
+    // battle going instead of ending it, regardless of the segment's
+    // question count (3).
+    for (let i = 0; i < PLAYER_MAX_HP - 1; i++) {
       state = playWrongAnswer(state)
       expect(state.screen).toBe('battle')
       expect(state.segmentIndex).toBe(0)
@@ -57,6 +66,46 @@ describe('gameReducer', () => {
       expect(state.enemy!.hp).toBe(state.enemy!.maxHp)
       expect(state.question).not.toBeNull()
     }
+  })
+
+  it('running out of playerHp ends the game on the gameover screen', () => {
+    let state = gameReducer(initGameState(), { type: 'START' })
+    for (let i = 0; i < PLAYER_MAX_HP; i++) {
+      state = playWrongAnswer(state)
+    }
+    expect(state.playerHp).toBe(0)
+    expect(state.screen).toBe('gameover')
+    expect(state.question).toBeNull()
+  })
+
+  it('does not persist highScore when the game ends via gameover', () => {
+    let state = gameReducer(initGameState(), { type: 'START' })
+    for (let i = 0; i < ENEMY_SEQUENCE[0].questionCount - 1; i++) {
+      state = playCorrectAnswer(state)
+    }
+    for (let i = 0; i < PLAYER_MAX_HP; i++) {
+      state = playWrongAnswer(state)
+    }
+    expect(state.screen).toBe('gameover')
+
+    const reloaded = initGameState()
+    expect(reloaded.highScore).toBe(0)
+  })
+
+  it('playerHp carries over between segments via CONTINUE but resets on START/RESTART', () => {
+    let state = gameReducer(initGameState(), { type: 'START' })
+    state = playWrongAnswer(state)
+    expect(state.playerHp).toBe(PLAYER_MAX_HP - 1)
+
+    for (let i = 0; i < ENEMY_SEQUENCE[0].questionCount; i++) {
+      state = playCorrectAnswer(state)
+    }
+    expect(state.screen).toBe('defeated')
+    state = gameReducer(state, { type: 'CONTINUE' })
+    expect(state.playerHp).toBe(PLAYER_MAX_HP - 1)
+
+    state = gameReducer(state, { type: 'RESTART' })
+    expect(state.playerHp).toBe(PLAYER_MAX_HP)
   })
 
   it('shows a defeated interstitial (not the next enemy yet) right after a non-final enemy dies', () => {

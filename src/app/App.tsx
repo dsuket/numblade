@@ -1,9 +1,11 @@
 import { useEffect, useReducer, useRef, useState } from 'react'
 import { ENEMY_SEQUENCE } from '../game/battle'
+import { PLAYER_MAX_HP } from '../game/player'
 import { gameReducer, initGameState } from '../game/reducer'
 import type { Question } from '../game/models'
 import BattleScreen from '../screens/BattleScreen'
 import DefeatedScreen from '../screens/DefeatedScreen'
+import GameOverScreen from '../screens/GameOverScreen'
 import ResultScreen from '../screens/ResultScreen'
 import TitleScreen from '../screens/TitleScreen'
 
@@ -73,6 +75,8 @@ export default function App() {
           combo={state.combo}
           score={state.score}
           isBoss={isBoss}
+          playerHp={state.playerHp}
+          playerMaxHp={PLAYER_MAX_HP}
           lastAnswerCorrect={state.lastAnswerCorrect}
           battleMessage={state.battleMessage}
           onAnswer={(value) => dispatch({ type: 'ANSWER', value })}
@@ -89,6 +93,21 @@ export default function App() {
           enemy={state.enemy}
           message={state.battleMessage ?? ''}
           onContinue={() => dispatch({ type: 'CONTINUE' })}
+        />
+      </div>
+    )
+  }
+
+  if (state.screen === 'gameover') {
+    return (
+      <div className={APP_CLASS}>
+        <GameOverScreen
+          correctAnswered={state.correctAnswered}
+          questionsAnswered={state.questionsAnswered}
+          maxCombo={state.maxCombo}
+          score={state.score}
+          highScore={state.highScore}
+          onRestart={() => dispatch({ type: 'RESTART' })}
         />
       </div>
     )
