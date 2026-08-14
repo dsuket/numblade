@@ -159,7 +159,7 @@ describe('BattleScreen', () => {
         onAnswer={() => {}}
       />,
     )
-    expect(screen.getByTestId('enemy-shake-wrapper').className).toContain('animate-[shake')
+    expect(screen.getByTestId('enemy-shake-wrapper')).toHaveClass('animate-[shake_0.4s_ease-in-out]')
   })
 
   it('does not shake the enemy when the answer is correct', () => {
@@ -176,6 +176,23 @@ describe('BattleScreen', () => {
         onAnswer={() => {}}
       />,
     )
-    expect(screen.getByTestId('enemy-shake-wrapper').className).not.toContain('animate-[shake')
+    expect(screen.getByTestId('enemy-shake-wrapper')).not.toHaveClass('animate-[shake_0.4s_ease-in-out]')
+  })
+
+  it('does not shake the enemy before any answer has been given', () => {
+    render(
+      <BattleScreen
+        enemy={enemy}
+        question={question}
+        level={1}
+        combo={0}
+        score={0}
+        isBoss={false}
+        lastAnswerCorrect={null}
+        battleMessage={null}
+        onAnswer={() => {}}
+      />,
+    )
+    expect(screen.getByTestId('enemy-shake-wrapper')).not.toHaveClass('animate-[shake_0.4s_ease-in-out]')
   })
 })

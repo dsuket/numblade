@@ -1405,3 +1405,9 @@ Title --START--> Battle --(敵を倒す, 非最終セグメント)--> Defeated -
   - `actions/configure-pages@v5` の `enablement: true` は上記の手動設定を代替できないが、無害なので残してある（Pages有効化後は特に影響しない）。
 
 **関連ファイル:** `vite.config.ts`, `.github/workflows/deploy.yml`。
+
+### 12. 敵との対戦時に正解・不正解エフェクトを追加
+
+**内容:** `BattleScreen.tsx` に、プレイヤーの回答結果に応じた視覚的フィードバックを追加。正解時は敵の上に⚔️（剣）の絵文字が`slash`アニメーション（0.35秒）で重なり斬撃を表現。不正解時は敵本体が`shake`アニメーション（0.4秒）で左右に揺れる。両アニメーションともTailwind CSSのカスタムkeyframe（`src/index.css`で定義）を使用し、アニメーション再スタート用に`key={question.id}`でDOM要素を再マウントする技法を活用している（同じ判定結果が連続した場合でも毎回アニメーション効果が発動する）。
+
+**関連ファイル:** `src/index.css`, `src/screens/BattleScreen.tsx`, `src/screens/BattleScreen.test.tsx`。
