@@ -14,6 +14,7 @@ interface BattleScreenProps {
   lastAnswerCorrect: boolean | null
   battleMessage: string | null
   onAnswer: (value: number) => void
+  disabled?: boolean
 }
 
 export default function BattleScreen({
@@ -26,6 +27,7 @@ export default function BattleScreen({
   lastAnswerCorrect,
   battleMessage,
   onAnswer,
+  disabled,
 }: BattleScreenProps) {
   return (
     <div className="flex flex-col items-center gap-4 w-full max-w-[480px] p-4">
@@ -74,7 +76,7 @@ export default function BattleScreen({
           </span>
         )}
       </div>
-      <QuestionPanel question={question} onAnswer={onAnswer} />
+      <QuestionPanel question={question} onAnswer={onAnswer} disabled={disabled} />
     </div>
   )
 }
