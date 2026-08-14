@@ -132,6 +132,8 @@ describe('BattleScreen', () => {
         combo={1}
         score={100}
         isBoss={false}
+        playerHp={4}
+        playerMaxHp={4}
         lastAnswerCorrect={true}
         battleMessage={null}
         onAnswer={() => {}}
@@ -149,6 +151,8 @@ describe('BattleScreen', () => {
         combo={0}
         score={0}
         isBoss={false}
+        playerHp={4}
+        playerMaxHp={4}
         lastAnswerCorrect={false}
         battleMessage={null}
         onAnswer={() => {}}
@@ -166,6 +170,8 @@ describe('BattleScreen', () => {
         combo={0}
         score={0}
         isBoss={false}
+        playerHp={4}
+        playerMaxHp={4}
         lastAnswerCorrect={null}
         battleMessage={null}
         onAnswer={() => {}}
@@ -183,6 +189,8 @@ describe('BattleScreen', () => {
         combo={0}
         score={0}
         isBoss={false}
+        playerHp={4}
+        playerMaxHp={4}
         lastAnswerCorrect={false}
         battleMessage={null}
         onAnswer={() => {}}
@@ -200,6 +208,8 @@ describe('BattleScreen', () => {
         combo={1}
         score={100}
         isBoss={false}
+        playerHp={4}
+        playerMaxHp={4}
         lastAnswerCorrect={true}
         battleMessage={null}
         onAnswer={() => {}}
@@ -217,6 +227,8 @@ describe('BattleScreen', () => {
         combo={0}
         score={0}
         isBoss={false}
+        playerHp={4}
+        playerMaxHp={4}
         lastAnswerCorrect={null}
         battleMessage={null}
         onAnswer={() => {}}
