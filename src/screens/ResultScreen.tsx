@@ -1,5 +1,3 @@
-import './ResultScreen.css'
-
 interface ResultScreenProps {
   correctAnswered: number
   questionsAnswered: number
@@ -20,7 +18,7 @@ export default function ResultScreen({
   const accuracy = questionsAnswered === 0 ? 0 : Math.round((correctAnswered / questionsAnswered) * 100)
 
   return (
-    <div className="result-screen">
+    <div className="flex flex-col items-center gap-2 text-[#e6f1ff]">
       <h2>リザルト</h2>
       <p>
         正答数: {correctAnswered} / {questionsAnswered}
@@ -29,7 +27,11 @@ export default function ResultScreen({
       <p>最大コンボ: {maxCombo}</p>
       <p>スコア: {score}</p>
       <p>ハイスコア: {highScore}</p>
-      <button type="button" className="result-restart-button" onClick={onRestart}>
+      <button
+        type="button"
+        className="min-h-16 min-w-[200px] rounded-xl border-none bg-[#3a86ff] text-xl text-white cursor-pointer mt-4"
+        onClick={onRestart}
+      >
         もう一度
       </button>
     </div>

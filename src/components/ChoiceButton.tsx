@@ -1,5 +1,3 @@
-import './ChoiceButton.css'
-
 interface ChoiceButtonProps {
   value: number
   onSelect: (value: number) => void
@@ -10,7 +8,7 @@ export default function ChoiceButton({ value, onSelect, disabled }: ChoiceButton
   return (
     <button
       type="button"
-      className="choice-button"
+      className="min-h-16 rounded-xl border-2 border-[#3a86ff] bg-[#101a2e] text-2xl text-[#e6f1ff] cursor-pointer active:bg-[#3a86ff] disabled:opacity-50 disabled:cursor-default"
       onClick={() => onSelect(value)}
       disabled={disabled}
     >

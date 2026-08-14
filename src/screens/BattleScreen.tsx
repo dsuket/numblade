@@ -3,7 +3,6 @@ import Enemy from '../components/Enemy'
 import HpBar from '../components/HpBar'
 import QuestionPanel from '../components/QuestionPanel'
 import type { Enemy as EnemyModel, Question } from '../game/models'
-import './BattleScreen.css'
 
 interface BattleScreenProps {
   enemy: EnemyModel
@@ -23,12 +22,12 @@ export default function BattleScreen({
   onAnswer,
 }: BattleScreenProps) {
   return (
-    <div className="battle-screen">
+    <div className="flex flex-col items-center gap-4 w-full max-w-[480px] p-4">
       <Enemy enemy={enemy} isBoss={isBoss} />
       <HpBar hp={enemy.hp} maxHp={enemy.maxHp} />
-      <div className="battle-hud">
+      <div className="flex justify-between w-full text-[#e6f1ff]">
         <ComboDisplay combo={combo} />
-        <span className="battle-score">スコア {score}</span>
+        <span>スコア {score}</span>
       </div>
       <QuestionPanel question={question} onAnswer={onAnswer} />
     </div>

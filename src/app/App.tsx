@@ -4,14 +4,16 @@ import { gameReducer, initGameState } from '../game/reducer'
 import BattleScreen from '../screens/BattleScreen'
 import ResultScreen from '../screens/ResultScreen'
 import TitleScreen from '../screens/TitleScreen'
-import './App.css'
+
+const APP_CLASS =
+  'min-h-screen flex items-center justify-center bg-[#0a0e1a] text-[#e6f1ff] font-[system-ui,sans-serif]'
 
 export default function App() {
   const [state, dispatch] = useReducer(gameReducer, undefined, initGameState)
 
   if (state.screen === 'title') {
     return (
-      <div className="app">
+      <div className={APP_CLASS}>
         <TitleScreen highScore={state.highScore} onStart={() => dispatch({ type: 'START' })} />
       </div>
     )
@@ -20,7 +22,7 @@ export default function App() {
   if (state.screen === 'battle' && state.enemy && state.question) {
     const isBoss = ENEMY_SEQUENCE[state.segmentIndex].isBoss
     return (
-      <div className="app">
+      <div className={APP_CLASS}>
         <BattleScreen
           enemy={state.enemy}
           question={state.question}
@@ -34,7 +36,7 @@ export default function App() {
   }
 
   return (
-    <div className="app">
+    <div className={APP_CLASS}>
       <ResultScreen
         correctAnswered={state.correctAnswered}
         questionsAnswered={state.questionsAnswered}
