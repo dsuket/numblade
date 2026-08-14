@@ -127,7 +127,7 @@ function answer(state: GameState, value: number, elapsedMs: number): GameState {
   const multiplier = multiplierForTier(bonusTier)
   const combo = nextCombo(state.combo, true)
   const maxCombo = Math.max(state.maxCombo, combo)
-  const score = state.score + scoreForAnswer(combo, multiplier)
+  const score = state.score + scoreForAnswer(combo, multiplier, state.level)
   const enemy = applyDamage(state.enemy, damagePerCorrectAnswer(segment, multiplier))
   const questionsAnswered = state.questionsAnswered + 1
   const correctAnswered = state.correctAnswered + 1

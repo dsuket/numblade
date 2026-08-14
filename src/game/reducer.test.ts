@@ -179,7 +179,11 @@ describe('gameReducer', () => {
     }
     expect(state.screen).toBe('result')
     expect(state.correctAnswered).toBe(totalQuestions)
-    expect(state.score).toBe(1450)
+    // With the level factor applied: answers 1-3 at level 1 (x1.0), 4-6 at
+    // level 2 (x1.4), 7-9 at level 3 (x1.8), 10 at level 4 (x2.2) — the
+    // adaptive rule bumps the level once per 3-correct streak.
+    // 100+100+150 + 140+280+140 + 180+180+180 + 880 = 2330
+    expect(state.score).toBe(2330)
     expect(state.maxCombo).toBe(totalQuestions)
   })
 
