@@ -93,4 +93,89 @@ describe('BattleScreen', () => {
     expect(screen.getByText('ゴブリンをたおした！ オーガがあらわれた！')).toBeInTheDocument()
     expect(screen.queryByText('せいかい！')).not.toBeInTheDocument()
   })
+
+  it('shows a slash effect overlay when the answer is correct', () => {
+    render(
+      <BattleScreen
+        enemy={enemy}
+        question={question}
+        level={1}
+        combo={1}
+        score={100}
+        isBoss={false}
+        lastAnswerCorrect={true}
+        battleMessage={null}
+        onAnswer={() => {}}
+      />,
+    )
+    expect(screen.getByTestId('slash-effect')).toBeInTheDocument()
+  })
+
+  it('shows no slash effect when the answer is incorrect', () => {
+    render(
+      <BattleScreen
+        enemy={enemy}
+        question={question}
+        level={1}
+        combo={0}
+        score={0}
+        isBoss={false}
+        lastAnswerCorrect={false}
+        battleMessage={null}
+        onAnswer={() => {}}
+      />,
+    )
+    expect(screen.queryByTestId('slash-effect')).not.toBeInTheDocument()
+  })
+
+  it('shows no slash effect before any answer has been given', () => {
+    render(
+      <BattleScreen
+        enemy={enemy}
+        question={question}
+        level={1}
+        combo={0}
+        score={0}
+        isBoss={false}
+        lastAnswerCorrect={null}
+        battleMessage={null}
+        onAnswer={() => {}}
+      />,
+    )
+    expect(screen.queryByTestId('slash-effect')).not.toBeInTheDocument()
+  })
+
+  it('shakes the enemy when the answer is incorrect', () => {
+    render(
+      <BattleScreen
+        enemy={enemy}
+        question={question}
+        level={1}
+        combo={0}
+        score={0}
+        isBoss={false}
+        lastAnswerCorrect={false}
+        battleMessage={null}
+        onAnswer={() => {}}
+      />,
+    )
+    expect(screen.getByTestId('enemy-shake-wrapper').className).toContain('animate-[shake')
+  })
+
+  it('does not shake the enemy when the answer is correct', () => {
+    render(
+      <BattleScreen
+        enemy={enemy}
+        question={question}
+        level={1}
+        combo={1}
+        score={100}
+        isBoss={false}
+        lastAnswerCorrect={true}
+        battleMessage={null}
+        onAnswer={() => {}}
+      />,
+    )
+    expect(screen.getByTestId('enemy-shake-wrapper').className).not.toContain('animate-[shake')
+  })
 })

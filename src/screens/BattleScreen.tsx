@@ -30,7 +30,23 @@ export default function BattleScreen({
   return (
     <div className="flex flex-col items-center gap-4 w-full max-w-[480px] p-4">
       <span className="text-[#e6f1ff]/70 text-sm">レベル {level}</span>
-      <Enemy enemy={enemy} isBoss={isBoss} />
+      <div className="relative" key={question.id}>
+        <div
+          data-testid="enemy-shake-wrapper"
+          className={lastAnswerCorrect === false ? 'animate-[shake_0.4s_ease-in-out]' : undefined}
+        >
+          <Enemy enemy={enemy} isBoss={isBoss} />
+        </div>
+        {lastAnswerCorrect === true && (
+          <span
+            data-testid="slash-effect"
+            aria-hidden="true"
+            className="absolute inset-0 flex items-center justify-center text-6xl animate-[slash_0.35s_ease-out_forwards]"
+          >
+            ⚔️
+          </span>
+        )}
+      </div>
       <HpBar hp={enemy.hp} maxHp={enemy.maxHp} />
       <div className="flex justify-between w-full text-[#e6f1ff]">
         <ComboDisplay combo={combo} />
