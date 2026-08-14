@@ -39,10 +39,23 @@ export default function BattleScreen({
       <div className="min-h-8 flex items-center justify-center text-center" data-testid="answer-feedback">
         {battleMessage && <span className="text-[#ffd166] font-bold text-base">{battleMessage}</span>}
         {!battleMessage && lastAnswerCorrect === true && (
-          <span className="text-[#4ade80] font-bold text-lg">せいかい！</span>
+          // Keyed by the (already-advanced) question id so the animation
+          // restarts on every answer, even when the same result (e.g. two
+          // wrong answers in a row) would otherwise render identical text.
+          <span
+            key={question.id}
+            className="text-[#4ade80] font-bold text-lg animate-[feedback-pop_2.5s_ease-out_forwards]"
+          >
+            せいかい！
+          </span>
         )}
         {!battleMessage && lastAnswerCorrect === false && (
-          <span className="text-[#ff4d6d] font-bold text-lg">ざんねん…もういちど！</span>
+          <span
+            key={question.id}
+            className="text-[#ff4d6d] font-bold text-lg animate-[feedback-pop_2.5s_ease-out_forwards]"
+          >
+            ざんねん…もういちど！
+          </span>
         )}
       </div>
       <QuestionPanel question={question} onAnswer={onAnswer} />
