@@ -7,11 +7,29 @@ const enemy: Enemy = { id: 'e1', name: 'ゴブリン', maxHp: 60, hp: 60 }
 const question: Question = { id: 'q1', expression: '2 x 3', answer: 6, choices: [6, 7, 8, 9] }
 
 describe('BattleScreen', () => {
+  it('shows the current level', () => {
+    render(
+      <BattleScreen
+        enemy={enemy}
+        question={question}
+        level={3}
+        combo={0}
+        score={0}
+        isBoss={false}
+        lastAnswerCorrect={null}
+        battleMessage={null}
+        onAnswer={() => {}}
+      />,
+    )
+    expect(screen.getByText('レベル 3')).toBeInTheDocument()
+  })
+
   it('shows no feedback before any answer has been given', () => {
     render(
       <BattleScreen
         enemy={enemy}
         question={question}
+        level={1}
         combo={0}
         score={0}
         isBoss={false}
@@ -29,6 +47,7 @@ describe('BattleScreen', () => {
       <BattleScreen
         enemy={enemy}
         question={question}
+        level={1}
         combo={1}
         score={100}
         isBoss={false}
@@ -45,6 +64,7 @@ describe('BattleScreen', () => {
       <BattleScreen
         enemy={enemy}
         question={question}
+        level={1}
         combo={0}
         score={0}
         isBoss={false}
@@ -61,6 +81,7 @@ describe('BattleScreen', () => {
       <BattleScreen
         enemy={enemy}
         question={question}
+        level={1}
         combo={0}
         score={0}
         isBoss={false}

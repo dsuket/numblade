@@ -7,6 +7,7 @@ import type { Enemy as EnemyModel, Question } from '../game/models'
 interface BattleScreenProps {
   enemy: EnemyModel
   question: Question
+  level: number
   combo: number
   score: number
   isBoss: boolean
@@ -18,6 +19,7 @@ interface BattleScreenProps {
 export default function BattleScreen({
   enemy,
   question,
+  level,
   combo,
   score,
   isBoss,
@@ -27,6 +29,7 @@ export default function BattleScreen({
 }: BattleScreenProps) {
   return (
     <div className="flex flex-col items-center gap-4 w-full max-w-[480px] p-4">
+      <span className="text-[#e6f1ff]/70 text-sm">レベル {level}</span>
       <Enemy enemy={enemy} isBoss={isBoss} />
       <HpBar hp={enemy.hp} maxHp={enemy.maxHp} />
       <div className="flex justify-between w-full text-[#e6f1ff]">

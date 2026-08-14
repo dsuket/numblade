@@ -27,6 +27,7 @@ export default function App() {
         <BattleScreen
           enemy={state.enemy}
           question={state.question}
+          level={state.level}
           combo={state.combo}
           score={state.score}
           isBoss={isBoss}
