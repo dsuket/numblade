@@ -248,4 +248,128 @@ describe('BattleScreen', () => {
     )
     expect(screen.getByTestId('enemy-shake-wrapper')).not.toHaveClass('animate-[shake_0.4s_ease-in-out]')
   })
+
+  it('shows the elapsed turn timer', () => {
+    render(
+      <BattleScreen
+        enemy={enemy}
+        question={question}
+        answerSeq={1}
+        level={1}
+        combo={0}
+        score={0}
+        isBoss={false}
+        playerHp={4}
+        playerMaxHp={4}
+        lastAnswerCorrect={null}
+        battleMessage={null}
+        onAnswer={() => {}}
+        elapsedSeconds={7}
+      />,
+    )
+    expect(screen.getByTestId('turn-timer')).toHaveTextContent('7')
+  })
+
+  it('defaults the turn timer to 0 seconds when not provided', () => {
+    render(
+      <BattleScreen
+        enemy={enemy}
+        question={question}
+        answerSeq={1}
+        level={1}
+        combo={0}
+        score={0}
+        isBoss={false}
+        playerHp={4}
+        playerMaxHp={4}
+        lastAnswerCorrect={null}
+        battleMessage={null}
+        onAnswer={() => {}}
+      />,
+    )
+    expect(screen.getByTestId('turn-timer')).toHaveTextContent('0')
+  })
+
+  it('shows a Critical! bonus effect on a critical-tier correct answer', () => {
+    render(
+      <BattleScreen
+        enemy={enemy}
+        question={question}
+        answerSeq={1}
+        level={1}
+        combo={1}
+        score={150}
+        isBoss={false}
+        playerHp={4}
+        playerMaxHp={4}
+        lastAnswerCorrect={true}
+        battleMessage={null}
+        onAnswer={() => {}}
+        bonusTier="critical"
+      />,
+    )
+    expect(screen.getByTestId('bonus-effect')).toHaveTextContent('Critical!')
+  })
+
+  it('shows a Nice! bonus effect on a nice-tier correct answer', () => {
+    render(
+      <BattleScreen
+        enemy={enemy}
+        question={question}
+        answerSeq={1}
+        level={1}
+        combo={1}
+        score={120}
+        isBoss={false}
+        playerHp={4}
+        playerMaxHp={4}
+        lastAnswerCorrect={true}
+        battleMessage={null}
+        onAnswer={() => {}}
+        bonusTier="nice"
+      />,
+    )
+    expect(screen.getByTestId('bonus-effect')).toHaveTextContent('Nice!')
+  })
+
+  it('shows no bonus effect on a correct answer with no bonus tier', () => {
+    render(
+      <BattleScreen
+        enemy={enemy}
+        question={question}
+        answerSeq={1}
+        level={1}
+        combo={1}
+        score={100}
+        isBoss={false}
+        playerHp={4}
+        playerMaxHp={4}
+        lastAnswerCorrect={true}
+        battleMessage={null}
+        onAnswer={() => {}}
+      />,
+    )
+    expect(screen.queryByTestId('bonus-effect')).not.toBeInTheDocument()
+  })
+
+  it('shows no bonus effect on an incorrect answer even if a bonus tier is set', () => {
+    render(
+      <BattleScreen
+        enemy={enemy}
+        question={question}
+        answerSeq={1}
+        level={1}
+        combo={0}
+        score={0}
+        isBoss={false}
+        playerHp={4}
+        playerMaxHp={4}
+        lastAnswerCorrect={false}
+        battleMessage={null}
+        onAnswer={() => {}}
+        bonusTier="critical"
+      />,
+    )
+    expect(screen.queryByTestId('bonus-effect')).not.toBeInTheDocument()
+  })
 })
