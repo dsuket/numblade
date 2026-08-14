@@ -86,7 +86,12 @@ export default function App() {
   if (state.screen === 'title') {
     return (
       <div className={APP_CLASS}>
-        <TitleScreen highScore={state.highScore} onStart={() => dispatch({ type: 'START' })} />
+        <TitleScreen
+          level={state.level}
+          highScore={state.highScore}
+          onStart={() => dispatch({ type: 'START' })}
+          onResetLevel={() => dispatch({ type: 'RESET_LEVEL' })}
+        />
       </div>
     )
   }

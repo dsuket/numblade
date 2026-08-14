@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 import { ENEMY_SEQUENCE } from '../game/battle'
 import { PLAYER_MAX_HP } from '../game/player'
+import { saveProgress } from '../storage/gameStorage'
 
 // Reads the currently displayed question ("6 x 7 = ?" / "42 ÷ 6 = ?"),
 // computes the correct answer, and clicks the matching choice button.
@@ -57,6 +58,16 @@ describe('App', () => {
     fireEvent.click(screen.getByRole('button', { name: 'スタート' }))
     expect(screen.getByTestId('enemy')).toBeInTheDocument()
     expect(screen.getByText(/=\s*\?/)).toBeInTheDocument()
+  })
+
+  it('resets the level from the title screen and the button disappears once the level is back to the minimum', () => {
+    saveProgress({ level: 4, highScore: 0 })
+    render(<App />)
+
+    const resetButton = screen.getByRole('button', { name: 'レベルをリセット' })
+    fireEvent.click(resetButton)
+
+    expect(screen.queryByRole('button', { name: 'レベルをリセット' })).not.toBeInTheDocument()
   })
 
   it('keeps showing the battle screen with the slash effect right after the killing blow, then switches to the defeated screen once the delay elapses', () => {
