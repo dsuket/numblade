@@ -43,7 +43,7 @@ export default function BattleScreen({
             aria-hidden="true"
             className="absolute inset-0 flex items-center justify-center text-6xl animate-[slash_0.35s_ease-out_forwards]"
           >
-            ⚔️
+            🗡️
           </span>
         )}
       </div>
