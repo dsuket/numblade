@@ -92,6 +92,9 @@ function applyMissResult(state: GameState): GameState {
   const questionsAnswered = state.questionsAnswered + 1
   const pendingRecentResults = [...state.recentResults, false].slice(-3)
   const level = nextLevel(state.level, pendingRecentResults)
+  // Reset the streak window once it has fired a level change, so a long
+  // unbroken streak steps the level once per 3-correct/2-wrong window
+  // instead of re-triggering on every subsequent answer.
   const recentResults = level === state.level ? pendingRecentResults : []
 
   const base: GameState = {
@@ -130,10 +133,12 @@ function answer(state: GameState, value: number, elapsedMs: number): GameState {
   const correctAnswered = state.correctAnswered + 1
   const pendingRecentResults = [...state.recentResults, true].slice(-3)
   const level = nextLevel(state.level, pendingRecentResults)
+  // Reset the streak window once it has fired a level change, so a long
+  // unbroken streak steps the level once per 3-correct/2-wrong window
+  // instead of re-triggering on every subsequent answer.
   const recentResults = level === state.level ? pendingRecentResults : []
 
-  // Only a defeated enemy ends the segment — a wrong answer never ends the
-  // battle by itself, it just resets combo and serves a new question.
+  // Only a defeated enemy ends the segment.
   const segmentDone = isDefeated(enemy)
   const isLastSegment = state.segmentIndex === ENEMY_SEQUENCE.length - 1
 

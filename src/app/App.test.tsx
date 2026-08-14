@@ -24,6 +24,11 @@ function computeAnswer(expression: string): number {
   throw new Error(`unrecognized expression: ${expression}`)
 }
 
+// Keeps every answer outside the 5s/10s speed-bonus window (>10000ms) and
+// well short of the 20s auto-timeout (<20000ms), so tests that assert exact
+// hit counts aren't perturbed by the speed bonus's extra damage.
+const SLOW_ANSWER_MS = 11000
+
 function clickWrongAnswer() {
   const expressionText = screen.getByText(/=\s*\?/).textContent ?? ''
   const answer = computeAnswer(expressionText.replace(/\s*=\s*\?$/, '').trim())
@@ -60,6 +65,9 @@ describe('App', () => {
     fireEvent.click(screen.getByRole('button', { name: 'スタート' }))
 
     for (let i = 0; i < ENEMY_SEQUENCE[0].questionCount; i++) {
+      act(() => {
+        vi.advanceTimersByTime(SLOW_ANSWER_MS)
+      })
       answerCorrectly()
     }
 
@@ -76,6 +84,39 @@ describe('App', () => {
     expect(screen.queryByTestId('slash-effect')).not.toBeInTheDocument()
   })
 
+  it('does not run the turn timeout while sitting on the defeated interstitial', () => {
+    vi.useFakeTimers()
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'スタート' }))
+
+    for (let i = 0; i < ENEMY_SEQUENCE[0].questionCount; i++) {
+      act(() => {
+        vi.advanceTimersByTime(SLOW_ANSWER_MS)
+      })
+      answerCorrectly()
+    }
+
+    // Let the killing-blow linger elapse so the app actually switches from
+    // the battle screen to the (non-'battle') 'defeated' interstitial.
+    act(() => {
+      vi.advanceTimersByTime(500)
+    })
+    expect(screen.getByTestId('explosion')).toBeInTheDocument()
+
+    // Sit on the defeated interstitial well past the 20s turn timeout. If a
+    // timeout were still armed here, it would dispatch TIMEOUT and damage
+    // the player even though there is no active question to have missed.
+    act(() => {
+      vi.advanceTimersByTime(20000)
+    })
+
+    fireEvent.click(screen.getByText('タップしてつづける ▶'))
+
+    expect(
+      within(screen.getByTestId('player-hp-bar')).getByText(`${PLAYER_MAX_HP} / ${PLAYER_MAX_HP}`),
+    ).toBeInTheDocument()
+  })
+
   it('remounts the slash effect on the killing blow so its animation replays even though the previous answer was also correct', () => {
     vi.useFakeTimers()
     render(<App />)
@@ -83,21 +124,21 @@ describe('App', () => {
 
     // Answer everything except the last question correctly — the slash
     // effect element exists from the previous correct answer, and must NOT
-    // be the same DOM node once the killing blow lands. Answer slowly
-    // (>10s per question) so every answer gets a 1x speed-bonus multiplier;
-    // otherwise the fake clock stays frozen at 0ms elapsed, every answer
-    // would score a "critical" 1.5x damage bonus, and the enemy would die
-    // one hit earlier than this test's questionCount-based math expects.
+    // be the same DOM node once the killing blow lands. Answer slowly so
+    // every answer gets a 1x speed-bonus multiplier; otherwise the fake
+    // clock stays frozen at 0ms elapsed, every answer would score a
+    // "critical" 1.5x damage bonus, and the enemy would die one hit earlier
+    // than this test's questionCount-based math expects.
     for (let i = 0; i < ENEMY_SEQUENCE[0].questionCount - 1; i++) {
       act(() => {
-        vi.advanceTimersByTime(11000)
+        vi.advanceTimersByTime(SLOW_ANSWER_MS)
       })
       answerCorrectly()
     }
     const slashBeforeKill = screen.getByTestId('slash-effect')
 
     act(() => {
-      vi.advanceTimersByTime(11000)
+      vi.advanceTimersByTime(SLOW_ANSWER_MS)
     })
     answerCorrectly()
 
@@ -111,6 +152,9 @@ describe('App', () => {
     fireEvent.click(screen.getByRole('button', { name: 'スタート' }))
 
     for (let i = 0; i < ENEMY_SEQUENCE[0].questionCount; i++) {
+      act(() => {
+        vi.advanceTimersByTime(SLOW_ANSWER_MS)
+      })
       answerCorrectly()
     }
 

@@ -60,6 +60,9 @@ describe('gameReducer', () => {
     let state = gameReducer(initGameState(), { type: 'START' })
     const firstEnemyId = state.enemy!.id
 
+    // Wrong answers up to (but not including) the miss limit must keep the
+    // battle going instead of ending it, regardless of the segment's
+    // question count (3).
     for (let i = 0; i < PLAYER_MAX_HP - 1; i++) {
       state = playWrongAnswer(state)
       expect(state.screen).toBe('battle')
@@ -115,6 +118,7 @@ describe('gameReducer', () => {
     for (let i = 0; i < ENEMY_SEQUENCE[0].questionCount - 1; i++) {
       state = playCorrectAnswer(state)
     }
+    // The last correct answer for this segment defeats the enemy.
     state = playCorrectAnswer(state)
 
     expect(state.screen).toBe('defeated')
@@ -150,6 +154,8 @@ describe('gameReducer', () => {
   it('clears the battle message on an ordinary answer that neither defeats nor is defeated', () => {
     let state = gameReducer(initGameState(), { type: 'START' })
     expect(state.battleMessage).not.toBeNull()
+    // The first segment needs more than 1 correct answer, so this one is
+    // an ordinary mid-battle answer, not a defeat.
     state = playCorrectAnswer(state)
     if (ENEMY_SEQUENCE[0].questionCount > 1) {
       expect(state.battleMessage).toBeNull()
@@ -186,11 +192,14 @@ describe('gameReducer', () => {
     }
     expect(state.level).toBe(2)
 
+    // Two more correct answers within the same unbroken streak must not
+    // re-trigger the level-up before another full 3-correct window passes.
     state = playCorrectAnswerAdvancing(state)
     expect(state.level).toBe(2)
     state = playCorrectAnswerAdvancing(state)
     expect(state.level).toBe(2)
 
+    // The next 3-correct window (the 6th consecutive correct answer) raises it again.
     state = playCorrectAnswerAdvancing(state)
     expect(state.level).toBe(3)
   })
@@ -204,6 +213,8 @@ describe('gameReducer', () => {
     state = playWrongAnswer(state)
     expect(state.level).toBe(5)
 
+    // A 3rd wrong answer within the same unbroken streak must not
+    // re-trigger the level-down before another full 2-wrong window passes.
     state = playWrongAnswer(state)
     expect(state.level).toBe(5)
 
