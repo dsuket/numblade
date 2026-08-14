@@ -2,6 +2,7 @@ import { useReducer } from 'react'
 import { ENEMY_SEQUENCE } from '../game/battle'
 import { gameReducer, initGameState } from '../game/reducer'
 import BattleScreen from '../screens/BattleScreen'
+import DefeatedScreen from '../screens/DefeatedScreen'
 import ResultScreen from '../screens/ResultScreen'
 import TitleScreen from '../screens/TitleScreen'
 
@@ -32,6 +33,18 @@ export default function App() {
           lastAnswerCorrect={state.lastAnswerCorrect}
           battleMessage={state.battleMessage}
           onAnswer={(value) => dispatch({ type: 'ANSWER', value })}
+        />
+      </div>
+    )
+  }
+
+  if (state.screen === 'defeated' && state.enemy) {
+    return (
+      <div className={APP_CLASS}>
+        <DefeatedScreen
+          enemy={state.enemy}
+          message={state.battleMessage ?? ''}
+          onContinue={() => dispatch({ type: 'CONTINUE' })}
         />
       </div>
     )

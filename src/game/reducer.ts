@@ -5,7 +5,7 @@ import { generateQuestion } from './questionGenerator'
 import { nextCombo, scoreForAnswer } from './scoring'
 import { loadProgress, saveProgress } from '../storage/gameStorage'
 
-export type Screen = 'title' | 'battle' | 'result'
+export type Screen = 'title' | 'battle' | 'defeated' | 'result'
 
 export interface GameState {
   screen: Screen
@@ -24,7 +24,11 @@ export interface GameState {
   battleMessage: string | null
 }
 
-export type GameAction = { type: 'START' } | { type: 'ANSWER'; value: number } | { type: 'RESTART' }
+export type GameAction =
+  | { type: 'START' }
+  | { type: 'ANSWER'; value: number }
+  | { type: 'CONTINUE' }
+  | { type: 'RESTART' }
 
 function questionForLevel(level: DifficultyLevel): Question {
   const params = getLevelParams(level)
@@ -114,18 +118,33 @@ function answer(state: GameState, value: number): GameState {
   }
 
   if (segmentDone) {
-    const nextSegmentIndex = state.segmentIndex + 1
-    const nextSegment = ENEMY_SEQUENCE[nextSegmentIndex]
+    // Pause on a "defeated" interstitial instead of jumping straight to the
+    // next enemy, so the player sees the defeat before continuing.
     return {
       ...base,
-      segmentIndex: nextSegmentIndex,
-      enemy: createEnemy(nextSegment),
-      question: questionForLevel(level),
-      battleMessage: `${segment.name}をたおした！ ${nextSegment.name}があらわれた！`,
+      screen: 'defeated',
+      question: null,
+      battleMessage: `${segment.name}をたおした！`,
     }
   }
 
   return { ...base, question: questionForLevel(level) }
+}
+
+function continueAfterDefeat(state: GameState): GameState {
+  if (state.screen !== 'defeated') return state
+
+  const nextSegmentIndex = state.segmentIndex + 1
+  const nextSegment = ENEMY_SEQUENCE[nextSegmentIndex]
+  return {
+    ...state,
+    screen: 'battle',
+    segmentIndex: nextSegmentIndex,
+    enemy: createEnemy(nextSegment),
+    question: questionForLevel(state.level),
+    lastAnswerCorrect: null,
+    battleMessage: `${nextSegment.name}があらわれた！`,
+  }
 }
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
@@ -134,6 +153,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return startBattle(state)
     case 'ANSWER':
       return answer(state, action.value)
+    case 'CONTINUE':
+      return continueAfterDefeat(state)
     case 'RESTART':
       return startBattle(state)
     default:

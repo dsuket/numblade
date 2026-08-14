@@ -19,13 +19,19 @@ export default function ResultScreen({
 
   return (
     <div className="flex flex-col items-center gap-2 text-[#e6f1ff]">
-      <h2>リザルト</h2>
+      <div className="text-6xl" aria-hidden="true">
+        🏆
+      </div>
+      <h2 className="text-4xl font-bold text-[#ffd166] drop-shadow-[0_0_12px_#ffd166] tracking-wider">
+        ゲームクリア！
+      </h2>
+      <p className="text-sm text-[#e6f1ff]/70 mb-2">リザルト</p>
       <p>
         正答数: {correctAnswered} / {questionsAnswered}
       </p>
       <p>正答率: {accuracy}%</p>
       <p>最大コンボ: {maxCombo}</p>
-      <p>スコア: {score}</p>
+      <p className="text-2xl font-bold text-[#ffd166]">スコア: {score}</p>
       <p>ハイスコア: {highScore}</p>
       <button
         type="button"
