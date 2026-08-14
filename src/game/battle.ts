@@ -25,6 +25,6 @@ export function createEnemy(segment: EnemySegment): Enemy {
   return { id: segment.name, name: segment.name, maxHp: segment.maxHp, hp: segment.maxHp }
 }
 
-export function damagePerCorrectAnswer(segment: EnemySegment): number {
-  return Math.ceil(segment.maxHp / segment.questionCount)
+export function damagePerCorrectAnswer(segment: EnemySegment, multiplier: number): number {
+  return Math.ceil((segment.maxHp / segment.questionCount) * multiplier)
 }
