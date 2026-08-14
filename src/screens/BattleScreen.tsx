@@ -11,6 +11,7 @@ interface BattleScreenProps {
   score: number
   isBoss: boolean
   lastAnswerCorrect: boolean | null
+  battleMessage: string | null
   onAnswer: (value: number) => void
 }
 
@@ -21,6 +22,7 @@ export default function BattleScreen({
   score,
   isBoss,
   lastAnswerCorrect,
+  battleMessage,
   onAnswer,
 }: BattleScreenProps) {
   return (
@@ -31,9 +33,14 @@ export default function BattleScreen({
         <ComboDisplay combo={combo} />
         <span>スコア {score}</span>
       </div>
-      <div className="h-8 flex items-center justify-center" data-testid="answer-feedback">
-        {lastAnswerCorrect === true && <span className="text-[#4ade80] font-bold text-lg">せいかい！</span>}
-        {lastAnswerCorrect === false && <span className="text-[#ff4d6d] font-bold text-lg">ざんねん…もういちど！</span>}
+      <div className="min-h-8 flex items-center justify-center text-center" data-testid="answer-feedback">
+        {battleMessage && <span className="text-[#ffd166] font-bold text-base">{battleMessage}</span>}
+        {!battleMessage && lastAnswerCorrect === true && (
+          <span className="text-[#4ade80] font-bold text-lg">せいかい！</span>
+        )}
+        {!battleMessage && lastAnswerCorrect === false && (
+          <span className="text-[#ff4d6d] font-bold text-lg">ざんねん…もういちど！</span>
+        )}
       </div>
       <QuestionPanel question={question} onAnswer={onAnswer} />
     </div>

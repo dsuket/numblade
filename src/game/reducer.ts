@@ -21,6 +21,7 @@ export interface GameState {
   correctAnswered: number
   recentResults: boolean[]
   lastAnswerCorrect: boolean | null
+  battleMessage: string | null
 }
 
 export type GameAction = { type: 'START' } | { type: 'ANSWER'; value: number } | { type: 'RESTART' }
@@ -46,6 +47,7 @@ export function initGameState(): GameState {
     correctAnswered: 0,
     recentResults: [],
     lastAnswerCorrect: null,
+    battleMessage: null,
   }
 }
 
@@ -64,6 +66,7 @@ function startBattle(state: GameState): GameState {
     correctAnswered: 0,
     recentResults: [],
     lastAnswerCorrect: null,
+    battleMessage: `${segment.name}があらわれた！`,
   }
 }
 
@@ -101,6 +104,7 @@ function answer(state: GameState, value: number): GameState {
     correctAnswered,
     recentResults,
     lastAnswerCorrect: correct,
+    battleMessage: null,
   }
 
   if (segmentDone && isLastSegment) {
@@ -111,11 +115,13 @@ function answer(state: GameState, value: number): GameState {
 
   if (segmentDone) {
     const nextSegmentIndex = state.segmentIndex + 1
+    const nextSegment = ENEMY_SEQUENCE[nextSegmentIndex]
     return {
       ...base,
       segmentIndex: nextSegmentIndex,
-      enemy: createEnemy(ENEMY_SEQUENCE[nextSegmentIndex]),
+      enemy: createEnemy(nextSegment),
       question: questionForLevel(level),
+      battleMessage: `${segment.name}をたおした！ ${nextSegment.name}があらわれた！`,
     }
   }
 

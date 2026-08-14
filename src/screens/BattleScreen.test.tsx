@@ -16,6 +16,7 @@ describe('BattleScreen', () => {
         score={0}
         isBoss={false}
         lastAnswerCorrect={null}
+        battleMessage={null}
         onAnswer={() => {}}
       />,
     )
@@ -32,6 +33,7 @@ describe('BattleScreen', () => {
         score={100}
         isBoss={false}
         lastAnswerCorrect={true}
+        battleMessage={null}
         onAnswer={() => {}}
       />,
     )
@@ -47,9 +49,27 @@ describe('BattleScreen', () => {
         score={0}
         isBoss={false}
         lastAnswerCorrect={false}
+        battleMessage={null}
         onAnswer={() => {}}
       />,
     )
     expect(screen.getByText('ざんねん…もういちど！')).toBeInTheDocument()
+  })
+
+  it('shows the battle message instead of answer feedback when both are present', () => {
+    render(
+      <BattleScreen
+        enemy={enemy}
+        question={question}
+        combo={0}
+        score={0}
+        isBoss={false}
+        lastAnswerCorrect={true}
+        battleMessage="ゴブリンをたおした！ オーガがあらわれた！"
+        onAnswer={() => {}}
+      />,
+    )
+    expect(screen.getByText('ゴブリンをたおした！ オーガがあらわれた！')).toBeInTheDocument()
+    expect(screen.queryByText('せいかい！')).not.toBeInTheDocument()
   })
 })

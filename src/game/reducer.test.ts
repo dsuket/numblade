@@ -23,6 +23,7 @@ describe('gameReducer', () => {
     expect(state.screen).toBe('battle')
     expect(state.enemy?.maxHp).toBe(ENEMY_SEQUENCE[0].maxHp)
     expect(state.question).not.toBeNull()
+    expect(state.battleMessage).toBe(`${ENEMY_SEQUENCE[0].name}があらわれた！`)
   })
 
   it('an incorrect answer resets combo and does not damage the enemy', () => {
@@ -57,6 +58,18 @@ describe('gameReducer', () => {
     expect(state.segmentIndex).toBe(1)
     expect(state.enemy?.maxHp).toBe(ENEMY_SEQUENCE[1].maxHp)
     expect(state.enemy?.hp).toBe(ENEMY_SEQUENCE[1].maxHp)
+    expect(state.battleMessage).toBe(`${ENEMY_SEQUENCE[0].name}をたおした！ ${ENEMY_SEQUENCE[1].name}があらわれた！`)
+  })
+
+  it('clears the battle message on an ordinary answer that neither defeats nor is defeated', () => {
+    let state = gameReducer(initGameState(), { type: 'START' })
+    expect(state.battleMessage).not.toBeNull()
+    state = playCorrectAnswer(state)
+    // The first segment needs more than 1 correct answer, so this one is
+    // an ordinary mid-battle answer, not a defeat.
+    if (ENEMY_SEQUENCE[0].questionCount > 1) {
+      expect(state.battleMessage).toBeNull()
+    }
   })
 
   it('finishes the game after all 10 questions answered correctly, with combo-bonus score', () => {

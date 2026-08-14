@@ -30,6 +30,7 @@ export default function App() {
           score={state.score}
           isBoss={isBoss}
           lastAnswerCorrect={state.lastAnswerCorrect}
+          battleMessage={state.battleMessage}
           onAnswer={(value) => dispatch({ type: 'ANSWER', value })}
         />
       </div>
