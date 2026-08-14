@@ -1,11 +1,12 @@
 import { applyDamage, createEnemy, damagePerCorrectAnswer, ENEMY_SEQUENCE, isDefeated } from './battle'
 import { getLevelParams, nextLevel, type DifficultyLevel } from './difficulty'
 import type { Enemy, Question } from './models'
+import { applyMiss, isGameOver, PLAYER_MAX_HP } from './player'
 import { generateQuestion } from './questionGenerator'
 import { nextCombo, scoreForAnswer } from './scoring'
 import { loadProgress, saveProgress } from '../storage/gameStorage'
 
-export type Screen = 'title' | 'battle' | 'defeated' | 'result'
+export type Screen = 'title' | 'battle' | 'defeated' | 'result' | 'gameover'
 
 export interface GameState {
   screen: Screen
@@ -16,6 +17,7 @@ export interface GameState {
   maxCombo: number
   segmentIndex: number
   enemy: Enemy | null
+  playerHp: number
   question: Question | null
   questionsAnswered: number
   correctAnswered: number
@@ -46,6 +48,7 @@ export function initGameState(): GameState {
     maxCombo: 0,
     segmentIndex: 0,
     enemy: null,
+    playerHp: PLAYER_MAX_HP,
     question: null,
     questionsAnswered: 0,
     correctAnswered: 0,
@@ -65,6 +68,7 @@ function startBattle(state: GameState): GameState {
     maxCombo: 0,
     segmentIndex: 0,
     enemy: createEnemy(segment),
+    playerHp: PLAYER_MAX_HP,
     question: questionForLevel(state.level),
     questionsAnswered: 0,
     correctAnswered: 0,
@@ -83,6 +87,7 @@ function answer(state: GameState, value: number): GameState {
   const maxCombo = Math.max(state.maxCombo, combo)
   const score = state.score + (correct ? scoreForAnswer(combo) : 0)
   const enemy = correct ? applyDamage(state.enemy, damagePerCorrectAnswer(segment)) : state.enemy
+  const playerHp = correct ? state.playerHp : applyMiss(state.playerHp)
   const questionsAnswered = state.questionsAnswered + 1
   const correctAnswered = state.correctAnswered + (correct ? 1 : 0)
   const pendingRecentResults = [...state.recentResults, correct].slice(-3)
@@ -104,11 +109,19 @@ function answer(state: GameState, value: number): GameState {
     combo,
     maxCombo,
     enemy,
+    playerHp,
     questionsAnswered,
     correctAnswered,
     recentResults,
     lastAnswerCorrect: correct,
     battleMessage: null,
+  }
+
+  // Running out of playerHp ends the run immediately, taking priority over
+  // segment/enemy outcomes — a wrong answer never damages the enemy, so this
+  // can only happen on a miss, never alongside a segment-clearing hit.
+  if (isGameOver(playerHp)) {
+    return { ...base, screen: 'gameover', question: null }
   }
 
   if (segmentDone && isLastSegment) {
