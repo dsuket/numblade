@@ -3,6 +3,7 @@ import Enemy from '../components/Enemy'
 import HpBar from '../components/HpBar'
 import QuestionPanel from '../components/QuestionPanel'
 import type { Enemy as EnemyModel, Question } from '../game/models'
+import type { BonusTier } from '../game/scoring'
 
 interface BattleScreenProps {
   enemy: EnemyModel
@@ -18,6 +19,8 @@ interface BattleScreenProps {
   battleMessage: string | null
   onAnswer: (value: number) => void
   disabled?: boolean
+  elapsedSeconds?: number
+  bonusTier?: BonusTier
 }
 
 export default function BattleScreen({
@@ -34,10 +37,15 @@ export default function BattleScreen({
   battleMessage,
   onAnswer,
   disabled,
+  elapsedSeconds = 0,
+  bonusTier = null,
 }: BattleScreenProps) {
   return (
     <div className="flex flex-col items-center gap-4 w-full max-w-[480px] p-4">
-      <span className="text-[#e6f1ff]/70 text-sm">レベル {level}</span>
+      <div className="flex justify-between w-full text-[#e6f1ff]/70 text-sm">
+        <span>レベル {level}</span>
+        <span data-testid="turn-timer">⏱ {elapsedSeconds}秒</span>
+      </div>
       <div className="relative" key={answerSeq}>
         <div
           data-testid="enemy-shake-wrapper"
@@ -73,6 +81,15 @@ export default function BattleScreen({
             className="text-[#4ade80] font-bold text-lg animate-[feedback-pop_2.5s_ease-out_forwards]"
           >
             せいかい！
+          </span>
+        )}
+        {!battleMessage && lastAnswerCorrect === true && bonusTier && (
+          <span
+            key={`bonus-${answerSeq}`}
+            data-testid="bonus-effect"
+            className="ml-2 text-[#ffd166] font-bold text-lg animate-[feedback-pop_2.5s_ease-out_forwards]"
+          >
+            {bonusTier === 'critical' ? 'Critical!' : 'Nice!'}
           </span>
         )}
         {!battleMessage && lastAnswerCorrect === false && (

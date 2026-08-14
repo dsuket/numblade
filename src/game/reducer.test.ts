@@ -4,22 +4,27 @@ import { PLAYER_MAX_HP } from './player'
 import { gameReducer, initGameState, type GameState } from './reducer'
 import { saveProgress } from '../storage/gameStorage'
 
-function playCorrectAnswer(state: GameState): GameState {
+// 12000ms is past the 10s "nice" window, so this always resolves to no
+// bonus (1x multiplier) — existing score/damage assertions in this file
+// were written assuming no speed bonus and must keep holding.
+const NO_BONUS_ELAPSED_MS = 12000
+
+function playCorrectAnswer(state: GameState, elapsedMs = NO_BONUS_ELAPSED_MS): GameState {
   if (!state.question) throw new Error('no active question')
-  return gameReducer(state, { type: 'ANSWER', value: state.question.answer })
+  return gameReducer(state, { type: 'ANSWER', value: state.question.answer, elapsedMs })
 }
 
 function playWrongAnswer(state: GameState): GameState {
   if (!state.question) throw new Error('no active question')
-  return gameReducer(state, { type: 'ANSWER', value: state.question.answer + 1000 })
+  return gameReducer(state, { type: 'ANSWER', value: state.question.answer + 1000, elapsedMs: NO_BONUS_ELAPSED_MS })
 }
 
 // Plays a correct answer and, if that defeats a non-final enemy (leaving the
 // game on the "defeated" interstitial), immediately continues past it. Used
 // by tests that don't care about that pause, just about reaching the next
 // question.
-function playCorrectAnswerAdvancing(state: GameState): GameState {
-  const next = playCorrectAnswer(state)
+function playCorrectAnswerAdvancing(state: GameState, elapsedMs = NO_BONUS_ELAPSED_MS): GameState {
+  const next = playCorrectAnswer(state, elapsedMs)
   return next.screen === 'defeated' ? gameReducer(next, { type: 'CONTINUE' }) : next
 }
 
@@ -149,9 +154,9 @@ describe('gameReducer', () => {
   it('clears the battle message on an ordinary answer that neither defeats nor is defeated', () => {
     let state = gameReducer(initGameState(), { type: 'START' })
     expect(state.battleMessage).not.toBeNull()
-    state = playCorrectAnswer(state)
     // The first segment needs more than 1 correct answer, so this one is
     // an ordinary mid-battle answer, not a defeat.
+    state = playCorrectAnswer(state)
     if (ENEMY_SEQUENCE[0].questionCount > 1) {
       expect(state.battleMessage).toBeNull()
     }
@@ -225,5 +230,75 @@ describe('gameReducer', () => {
     }
     const reloaded = initGameState()
     expect(reloaded.highScore).toBe(state.score)
+  })
+
+  describe('speed bonus', () => {
+    it('awards a critical (1.5x) bonus to score and enemy damage within 5 seconds', () => {
+      let state = gameReducer(initGameState(), { type: 'START' })
+      const enemyHpBefore = state.enemy!.hp
+      state = playCorrectAnswer(state, 3000)
+      expect(state.bonusTier).toBe('critical')
+      expect(state.score).toBe(150) // 100 * 1.5
+      const expectedDamage = Math.ceil((ENEMY_SEQUENCE[0].maxHp / ENEMY_SEQUENCE[0].questionCount) * 1.5)
+      expect(enemyHpBefore - state.enemy!.hp).toBe(expectedDamage)
+    })
+
+    it('awards a nice (1.2x) bonus to score and enemy damage between 5 and 10 seconds', () => {
+      let state = gameReducer(initGameState(), { type: 'START' })
+      const enemyHpBefore = state.enemy!.hp
+      state = playCorrectAnswer(state, 8000)
+      expect(state.bonusTier).toBe('nice')
+      expect(state.score).toBe(120) // 100 * 1.2
+      const expectedDamage = Math.ceil((ENEMY_SEQUENCE[0].maxHp / ENEMY_SEQUENCE[0].questionCount) * 1.2)
+      expect(enemyHpBefore - state.enemy!.hp).toBe(expectedDamage)
+    })
+
+    it('awards no bonus between 10 and 20 seconds', () => {
+      let state = gameReducer(initGameState(), { type: 'START' })
+      state = playCorrectAnswer(state, 15000)
+      expect(state.bonusTier).toBe(null)
+      expect(state.score).toBe(100)
+    })
+
+    it('never applies a bonus on an incorrect answer, regardless of elapsedMs', () => {
+      let state = gameReducer(initGameState(), { type: 'START' })
+      state = gameReducer(state, { type: 'ANSWER', value: state.question!.answer + 1000, elapsedMs: 1000 })
+      expect(state.bonusTier).toBe(null)
+      expect(state.score).toBe(0)
+    })
+  })
+
+  describe('TIMEOUT', () => {
+    it('behaves exactly like a wrong answer: resets combo and reduces playerHp by 1', () => {
+      let state = gameReducer(initGameState(), { type: 'START' })
+      state = playCorrectAnswer(state) // build a combo first
+      expect(state.combo).toBe(1)
+      const hpBeforeTimeout = state.enemy!.hp
+
+      state = gameReducer(state, { type: 'TIMEOUT' })
+      expect(state.combo).toBe(0)
+      expect(state.playerHp).toBe(PLAYER_MAX_HP - 1)
+      expect(state.enemy!.hp).toBe(hpBeforeTimeout) // TIMEOUT itself must deal no damage
+      expect(state.lastAnswerCorrect).toBe(false)
+      expect(state.bonusTier).toBe(null)
+      expect(state.question).not.toBeNull()
+    })
+
+    it('ends the game on gameover when it drops playerHp to 0, same as a wrong answer', () => {
+      let state = gameReducer(initGameState(), { type: 'START' })
+      for (let i = 0; i < PLAYER_MAX_HP - 1; i++) {
+        state = playWrongAnswer(state)
+      }
+      expect(state.playerHp).toBe(1)
+      state = gameReducer(state, { type: 'TIMEOUT' })
+      expect(state.playerHp).toBe(0)
+      expect(state.screen).toBe('gameover')
+      expect(state.question).toBeNull()
+    })
+
+    it('is a no-op outside the battle screen', () => {
+      const titleState = initGameState()
+      expect(gameReducer(titleState, { type: 'TIMEOUT' })).toEqual(titleState)
+    })
   })
 })

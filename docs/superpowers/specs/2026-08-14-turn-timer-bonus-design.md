@@ -16,7 +16,6 @@
 - `src/game/battle.ts`: `damagePerCorrectAnswer` に倍率を適用できる形に変更（または呼び出し側で倍率を掛ける）
 - `src/app/App.tsx`: 問題ごとの経過時間管理（表示用インターバル、20秒タイムアウト用タイマー）
 - `src/screens/BattleScreen.tsx`: タイマー表示、ボーナスエフェクト（Critical!/Nice!）表示
-- `src/index.css`: ボーナスエフェクト用のフェードアニメーション（`feedback-pop` 系を踏襲）
 - 上記に対応するテストファイル一式
 
 ## 設計詳細
@@ -121,7 +120,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
   - `bonusTier === null`（10〜20秒での正解）の場合は何も表示せず、通常の「せいかい！」のみ
   - `answerSeq` をキーにして、既存の `feedback-pop` アニメーションと同様に毎回リスタートさせる
 
-`src/index.css` に、`feedback-pop` を踏襲したフェードアウト系の keyframe を追加する（新規名: `bonus-pop` など）。
+新規 keyframe は追加せず、既存の `feedback-pop` アニメーション（`src/index.css`）をそのまま再利用する。
 
 ### 5. 既存箇所への影響
 

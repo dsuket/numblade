@@ -54,9 +54,16 @@ describe('createEnemy', () => {
 })
 
 describe('damagePerCorrectAnswer', () => {
-  it('splits maxHp evenly across the segment question count', () => {
+  it('splits maxHp evenly across the segment question count at 1x multiplier', () => {
     for (const segment of ENEMY_SEQUENCE) {
-      expect(damagePerCorrectAnswer(segment) * segment.questionCount).toBeGreaterThanOrEqual(segment.maxHp)
+      expect(damagePerCorrectAnswer(segment, 1) * segment.questionCount).toBeGreaterThanOrEqual(segment.maxHp)
     }
+  })
+
+  it('scales damage by the multiplier and rounds up', () => {
+    const segment = { name: 'test', maxHp: 60, questionCount: 3, isBoss: false }
+    expect(damagePerCorrectAnswer(segment, 1)).toBe(20)
+    expect(damagePerCorrectAnswer(segment, 1.5)).toBe(30)
+    expect(damagePerCorrectAnswer(segment, 1.2)).toBe(24)
   })
 })
