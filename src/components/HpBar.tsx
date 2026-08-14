@@ -1,9 +1,10 @@
 interface HpBarProps {
   hp: number
   maxHp: number
+  barColor?: string
 }
 
-export default function HpBar({ hp, maxHp }: HpBarProps) {
+export default function HpBar({ hp, maxHp, barColor = 'bg-[#ff4d6d]' }: HpBarProps) {
   const percent = maxHp === 0 ? 0 : Math.max(0, Math.min(100, (hp / maxHp) * 100))
   return (
     <div
@@ -14,7 +15,7 @@ export default function HpBar({ hp, maxHp }: HpBarProps) {
       aria-valuemax={maxHp}
     >
       <div
-        className="h-full bg-[#ff4d6d] transition-[width] duration-300 ease-[ease]"
+        className={`h-full ${barColor} transition-[width] duration-300 ease-[ease]`}
         style={{ width: `${percent}%` }}
       />
       <span className="absolute inset-0 flex items-center justify-center text-xs text-[#e6f1ff]">

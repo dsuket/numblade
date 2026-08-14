@@ -87,7 +87,7 @@ export default function BattleScreen({
       <QuestionPanel question={question} onAnswer={onAnswer} disabled={disabled} />
       <div className="w-full" data-testid="player-hp-bar">
         <span className="text-[#e6f1ff]/70 text-xs">HP</span>
-        <HpBar hp={playerHp} maxHp={playerMaxHp} />
+        <HpBar hp={playerHp} maxHp={playerMaxHp} barColor="bg-[#4ade80]" />
       </div>
     </div>
   )
