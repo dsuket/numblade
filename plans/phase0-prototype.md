@@ -8,7 +8,10 @@
 
 **技術スタック:** TypeScript, React 18, Vite, Vitest, @testing-library/react, Tailwind CSS（仕様書5章の「チームの好みで選択」を踏まえ採用）。
 
-> **更新履歴:** 当初はコンポーネントごとの素のCSSファイルで実装したが、その後CSSをTailwindに統一する方針に変更した。以下の各タスクのコード例は当初実装時点のものを記録として残しているが、実際のコードは後続のTailwind移行コミットで置き換わっている。今後このプランを参照する場合はTailwindのユーティリティクラスで実装すること。
+> **更新履歴:**
+> - 当初はコンポーネントごとの素のCSSファイルで実装したが、その後CSSをTailwindに統一する方針に変更した。以下の各タスクのコード例は当初実装時点のものを記録として残しているが、実際のコードは後続のTailwind移行コミットで置き換わっている。今後このプランを参照する場合はTailwindのユーティリティクラスで実装すること。
+> - Task 1の `vite.config.ts` には `/// <reference types="vitest/config" />` が抜けており、`pnpm build`（`tsc -b`）が `test` フィールドの型を解決できずエラーになる不具合があったため、実装直後に1行追加する修正を行った（`vitest`/`vite dev` 自体は影響を受けない）。以降このプランを参照する場合は、この参照コメントを含めて実装すること。
+> - Phase 1完了後に行われた `src/game/*`・画面まわりの追加修正・機能追加は `plans/phase1-mvp-core.md` 末尾の「実装後の修正・追加」セクションを参照。Phase 0で作成したファイル（`App.tsx`, `questionGenerator.ts`, `battle.ts`, `scoring.ts`）の多くはPhase 1タスクで上書きされているため、最終的な実装はそちらを正とする。
 
 ## 全体制約（Global Constraints）
 
