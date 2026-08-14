@@ -305,4 +305,25 @@ describe('gameReducer', () => {
       expect(gameReducer(titleState, { type: 'TIMEOUT' })).toEqual(titleState)
     })
   })
+
+  describe('RESET_LEVEL', () => {
+    it('resets the level to MIN_LEVEL and persists it, without touching highScore', () => {
+      saveProgress({ level: 5, highScore: 900 })
+      const state = initGameState()
+      expect(state.level).toBe(5)
+
+      const result = gameReducer(state, { type: 'RESET_LEVEL' })
+      expect(result.level).toBe(1)
+      expect(result.highScore).toBe(900)
+
+      const reloaded = initGameState()
+      expect(reloaded.level).toBe(1)
+      expect(reloaded.highScore).toBe(900)
+    })
+
+    it('is a no-op outside the title screen', () => {
+      const battleState = gameReducer(initGameState(), { type: 'START' })
+      expect(gameReducer(battleState, { type: 'RESET_LEVEL' })).toEqual(battleState)
+    })
+  })
 })
