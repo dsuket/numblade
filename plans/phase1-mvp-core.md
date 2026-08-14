@@ -1376,3 +1376,32 @@ Task 8で定義した画面一覧（Title / Battle / Result）に、上記6に�
 Title --START--> Battle --(敵を倒す, 非最終セグメント)--> Defeated --(タップ=CONTINUE)--> Battle（次の敵）
                      └--(ボス=最終セグメントを倒す)--> Result --(もう一度=RESTART)--> Battle
 ```
+
+### 9. 敵撃破時に爆発エフェクトを追加
+
+**内容:** `src/index.css` にTailwindのカスタムkeyframe `explode`（拡大しながらフェードアウト、0.6秒）を追加。💥の絵文字をこのアニメーションで表示し、`DefeatedScreen`（通常敵撃破）と`ResultScreen`（ボス撃破＝ゲームクリア）の両方で、敵グラフィック/トロフィーの上に重ねて表示する。
+
+**関連ファイル:** `src/index.css`, `src/screens/DefeatedScreen.tsx`, `src/screens/ResultScreen.tsx`, それぞれのテストに `data-testid="explosion"` の存在確認を追加。
+
+### 10. 正解・不正解フィードバックをアニメーション化し、数秒で消えるように変更
+
+**症状:** 「せいかい！」「ざんねん…もういちど！」が静的に表示されたままだったため、不正解が連続すると同じテキストが変化なく表示され続け、新しく回答したこと自体が分かりにくかった。
+
+**修正:** `src/index.css` にkeyframe `feedback-pop`（ポップイン→保持→フェードアウト、2.5秒）を追加し、`BattleScreen.tsx` のフィードバック表示に適用。さらに、フィードバックの`<span>`に `key={question.id}` を設定することで、**同じ判定結果（例: 不正解が連続）でも回答のたびにアニメーションが再スタートする**ようにした（`question.id`は不正解時も含め毎回の回答後に必ず新しい値になる）。
+
+**関連ファイル:** `src/index.css`, `src/screens/BattleScreen.tsx`。
+
+### 11. GitHub Pagesで公開
+
+**内容:** 仕様書12章の「MVP公開方法: GitHub Pages」を実施。
+
+- リポジトリ: `https://github.com/dsuket/numblade`（Public）
+- 公開URL: `https://dsuket.github.io/numblade/`
+- `vite.config.ts` に `base: '/numblade/'` を設定（プロジェクトページのURL構造に合わせてアセットパスを解決するため必須）。
+- `.github/workflows/deploy.yml` を追加。`main` へのpush（および手動実行）のたびに `pnpm install` → `pnpm test` → `pnpm build` → `actions/upload-pages-artifact` → `actions/deploy-pages` を実行する。
+- **ハマりどころ・判断事項:**
+  - `package.json` の `packageManager: pnpm@11.21.0` はNode.js 22.13以上を要求するため、ワークフローの `actions/setup-node` は `node-version: 22` を指定する必要がある（20だと `pnpm install` 前段で `ERR_UNKNOWN_BUILTIN_MODULE: node:sqlite` エラーになる）。
+  - GitHub PagesのSourceを初めて有効化する操作は、ワークフロー自身の `GITHUB_TOKEN`（`pages: write` 権限があっても）では実行できない（`Resource not accessible by integration` エラー）。リポジトリのSettings → Pages → Source を「GitHub Actions」に**人間が一度だけ手動で設定**する必要がある。`gh api` での書き込みは社内ルール上使用しないため、この手動設定はユーザーに依頼した。
+  - `actions/configure-pages@v5` の `enablement: true` は上記の手動設定を代替できないが、無害なので残してある（Pages有効化後は特に影響しない）。
+
+**関連ファイル:** `vite.config.ts`, `.github/workflows/deploy.yml`。
